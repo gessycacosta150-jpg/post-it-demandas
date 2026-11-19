@@ -243,8 +243,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
         <button class="ico" id="btnMenu" title="Minhas folhas: abrir, criar e excluir">☰</button>
         <button class="ico" id="btnConfig" title="Ajustes: tamanho, cores e temas">⚙</button>
         <button class="ico so-app" id="btnFixar" title="Ficar por cima dos aplicativos (desligado = só na área de trabalho)">📌</button>
-        <button class="ico so-app" id="btnMin" title="Minimizar">–</button>
-        <button class="ico so-app" id="btnFechar" title="Fechar">✕</button>
+        <button class="ico so-app" id="btnFechar" title="Devolver para o fundo da área de trabalho (não fecha)">✕</button>
       </div>
     </div>
 
@@ -583,7 +582,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
     if (!confirm('Excluir a folha "' + alvo.nome + '" e tudo o que está nela?')) return;
     gravarJ(IDX, ix.filter(i => i.id !== id));
     try { localStorage.removeItem(FK(id)); } catch (e) {}
-    if (id === F.id) { if (App) App.fechar(); else window.close(); return; }
+    if (id === F.id) { if (App) App.encerrarEsta(); else window.close(); return; }
     if (App) App.fecharFolha(id);
     renderMenu();
   }
@@ -686,8 +685,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
       $('chkMsg').textContent = r === 'atual' ? 'Você está na versão mais recente.' : r === 'nova' ? 'Nova versão encontrada!' : r === 'erro' ? 'Não foi possível verificar agora.' : '(só no programa instalado)';
     };
     $('btnUpd').onclick = () => App.instalarAtualizacao();
-    $('btnMin').onclick = () => App.minimizar();
-    $('btnFechar').onclick = () => App.fechar();
+    $('btnFechar').onclick = async () => { await App.fechar(); mostrarModo(await App.getModo()); };
     $('chkAuto').onchange = (e) => App.setAuto(e.target.checked);
   }
 

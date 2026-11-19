@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, screen, nativeTheme, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, nativeTheme, Notification, Tray, Menu, nativeImage, powerMonitor } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
@@ -30,6 +30,29 @@ const janelas = new Map();     // id da folha -> janela
 const modoDe = (id) => (estado.folhas[id] && estado.folhas[id].modo) || 'fundo';   // fundo | normal | cima
 let encerrando = false;
 let versaoAvisada = null;
+const forcarFechar = new Set();   // folhas que podem realmente fechar (ex.: folha excluída)
+
+// ---------- bandeja do relógio: único acesso quando o post-it está coberto ----------
+let bandeja = null;
+const ICONE_BANDEJA = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAhklEQVR4nGNgGAUDDBiROY+3sv6nh6Wy3r/h9jLRw0J8YNQBow4YdQALNkEZx100sezJfjcMsQEPgVEHYE0DyKCyajrFlrS3ZZLvAHyaqQEGPApGHTCaCAc8CkYdMOCJkBFdANY0p3aVDKuKkZvkDAx4QgBb3U0LgBECMEDtTgq6z0fBoAEAZtsgFbKSNLEAAAAASUVORK5CYII=';
+function mostrarTodas() {
+  janelas.forEach(w => { if (w.isDestroyed()) return; if (w.isMinimized()) w.restore(); w.show(); w.moveTop(); });
+  const w = [...janelas.values()][0];
+  if (w && !w.isDestroyed()) w.focus();
+}
+function criarBandeja() {
+  try {
+    bandeja = new Tray(nativeImage.createFromDataURL(ICONE_BANDEJA));
+    bandeja.setToolTip('Gege Post-it');
+    bandeja.setContextMenu(Menu.buildFromTemplate([
+      { label: 'Mostrar post-its', click: mostrarTodas },
+      { type: 'separator' },
+      { label: 'Sair', click: () => app.quit() }
+    ]));
+    bandeja.on('click', mostrarTodas);
+  } catch (e) { bandeja = null; }
+}
+function reiniciarParaAtualizar() { encerrando = true; autoUpdater.quitAndInstall(); }
 
 // ---------- posição/tamanho de cada folha ----------
 const arqEstado = () => path.join(app.getPath('userData'), 'janela.json');
@@ -87,6 +110,7 @@ function abrirFolha(id, referencia) {
     width: w, height: h, x, y,
     minWidth: 240, minHeight: 220,
     frame: false,
+    skipTaskbar: true,        // sem botão na barra de tarefas
     alwaysOnTop: modoDe(id) === 'cima',
     autoHideMenuBar: true,
     title: 'Gege Post-it',
@@ -104,7 +128,15 @@ function abrirFolha(id, referencia) {
   let t = null;
   const agendar = () => { clearTimeout(t); t = setTimeout(() => guardar(id, win), 400); };
   win.on('move', agendar); win.on('resize', agendar);
-  win.on('close', () => {
+  win.on('minimize', () => {   // Win + D ou outro atalho: o post-it permanece na área de trabalho
+    setTimeout(() => { if (!win.isDestroyed() && win.isMinimized()) { win.restore(); if (modoDe(id) === 'fundo') paraFundo(win); } }, 50);
+  });
+  win.on('close', (ev) => {
+    if (!encerrando && !forcarFechar.has(id)) {   // ✕ e Alt+F4 não removem a folha
+      ev.preventDefault();
+      if (modoDe(id) === 'fundo') paraFundo(win);
+      return;
+    }
     guardar(id, win);
     if (!encerrando && janelas.size > 1) estado.abertas = estado.abertas.filter(x => x !== id);
     estado.ultima = id;
@@ -116,10 +148,7 @@ function abrirFolha(id, referencia) {
 const idDe = (sender) => { for (const [id, w] of janelas) if (!w.isDestroyed() && w.webContents === sender) return id; return null; };
 
 app.on('before-quit', () => { encerrando = true; });
-app.on('second-instance', () => {
-  const w = [...janelas.values()][0];
-  if (w) { if (w.isMinimized()) w.restore(); w.focus(); }
-});
+app.on('second-instance', () => { mostrarTodas(); });
 app.on('window-all-closed', () => app.quit());
 
 // ---------- atualização automática ----------
@@ -136,7 +165,7 @@ function iniciarAtualizacao() {
   });
   autoUpdater.on('update-downloaded', (info) => {
     paraTodas('update:pronta', info.version);
-    avisar('Atualização pronta', 'Versão ' + info.version + ' baixada. Clique aqui para reiniciar e atualizar.', () => autoUpdater.quitAndInstall());
+    avisar('Atualização pronta', 'Versão ' + info.version + ' baixada. Clique aqui para reiniciar e atualizar.', () => reiniciarParaAtualizar());
   });
   autoUpdater.on('error', () => {});
   const checar = () => autoUpdater.checkForUpdates().catch(() => {});
@@ -151,6 +180,8 @@ function iniciarAtualizacao() {
 app.whenReady().then(() => {
   const ids = estado.abertas.length ? [...estado.abertas] : [estado.ultima || 'f1'];
   ids.forEach(id => abrirFolha(id));
+  criarBandeja();
+  try { powerMonitor.on('shutdown', () => { encerrando = true; }); } catch (e) {}
   iniciarAtualizacao();
 });
 
@@ -177,17 +208,26 @@ ipcMain.on('janela:encaixar', (e, pos) => {
   if (pos === 'rodape')   { const h = Math.min(Math.max(b.height, 220), 300); w.setBounds({ x: wa.x, y: wa.y + wa.height - h, width: wa.width, height: h }); }
   guardar(id, w);
 });
-ipcMain.on('win:min', (e) => { const w = janelaDe(e); if (w) w.minimize(); });
-ipcMain.on('win:close', (e) => { const w = janelaDe(e); if (w) w.close(); });
+// ✕ da folha: não fecha; devolve a folha para o fundo da área de trabalho
+ipcMain.handle('win:close', (e) => {
+  const id = idDe(e.sender), w = janelaDe(e); if (!id || !w) return 'normal';
+  estado.folhas[id] = { ...(estado.folhas[id] || {}), modo: 'fundo' };
+  w.setAlwaysOnTop(false);
+  paraFundo(w);
+  guardar(id, w);
+  return 'fundo';
+});
+// excluir a própria folha: aí sim a janela fecha de verdade
+ipcMain.on('folha:encerrar', (e) => { const id = idDe(e.sender), w = janelaDe(e); if (!id || !w) return; forcarFechar.add(id); w.close(); });
 ipcMain.handle('folha:abrir', (e, id) => { abrirFolha(String(id), janelaDe(e)); return true; });
-ipcMain.on('folha:fechar', (e, id) => { const w = janelas.get(String(id)); if (w && !w.isDestroyed()) w.close(); delete estado.folhas[String(id)]; estado.abertas = estado.abertas.filter(x => x !== String(id)); gravar(); });
+ipcMain.on('folha:fechar', (e, id) => { const w = janelas.get(String(id)); if (w && !w.isDestroyed()) { forcarFechar.add(String(id)); w.close(); } delete estado.folhas[String(id)]; estado.abertas = estado.abertas.filter(x => x !== String(id)); gravar(); });
 ipcMain.handle('folha:abertas', () => [...janelas.keys()]);
 ipcMain.on('notificar', (e, titulo, corpo) => { const w = janelaDe(e); avisar(String(titulo), String(corpo), () => { if (w && !w.isDestroyed()) { if (w.isMinimized()) w.restore(); w.focus(); } }); });
 ipcMain.on('app:sair', () => app.quit());
 ipcMain.handle('auto:get', () => app.getLoginItemSettings().openAtLogin);
 ipcMain.on('auto:set', (_e, v) => app.setLoginItemSettings({ openAtLogin: !!v }));
 ipcMain.handle('app:versao', () => app.getVersion());
-ipcMain.on('update:instalar', () => autoUpdater.quitAndInstall());
+ipcMain.on('update:instalar', () => reiniciarParaAtualizar());
 ipcMain.handle('update:checar', async () => {
   if (!app.isPackaged) return 'dev';
   try {
