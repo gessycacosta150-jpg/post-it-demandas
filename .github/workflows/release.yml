@@ -1,0 +1,35 @@
+name: Gerar nova versão
+
+# Roda sozinho quando você cria uma tag de versão (ex.: v1.0.1)
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Conferir se a tag bate com a versão do package.json
+        shell: bash
+        run: |
+          V=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF_NAME" != "v$V" ]; then
+            echo "A tag ($GITHUB_REF_NAME) não bate com a versão do package.json (v$V)."
+            exit 1
+          fi
+
+      - run: npm install
+
+      - name: Gerar instalador e publicar no GitHub Releases
+        run: npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
