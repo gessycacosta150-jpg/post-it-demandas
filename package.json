@@ -1,8 +1,8 @@
 {
   "name": "post-it-demandas",
-  "productName": "Post-it Demandas",
-  "version": "1.2.1",
-  "description": "Post-it de demandas e checklist semanal para a área de trabalho",
+  "productName": "Gege Post-it",
+  "version": "1.2.2",
+  "description": "Gege Post-it: folhas de tarefas, recados e lembretes para a área de trabalho",
   "main": "main.js",
   "author": "Gessyca Costa",
   "license": "UNLICENSED",
@@ -20,8 +20,8 @@
   },
   "build": {
     "appId": "br.postit.demandas",
-    "productName": "Post-it Demandas",
-    "artifactName": "Post-it-Demandas-Setup-${version}.${ext}",
+    "productName": "Gege Post-it",
+    "artifactName": "Gege-Post-it-Setup-${version}.${ext}",
     "directories": { "buildResources": "build" },
     "files": ["index.html", "main.js", "preload.js", "package.json"],
     "win": { "target": [{ "target": "nsis", "arch": ["x64"] }] },

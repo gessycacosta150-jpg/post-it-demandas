@@ -3,6 +3,9 @@ const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
 
+// Mantém a pasta de dados antiga: assim as tarefas, recados e lembretes não se perdem com o novo nome.
+app.setPath('userData', path.join(app.getPath('appData'), 'Post-it Demandas'));
+
 if (!app.requestSingleInstanceLock()) { app.quit(); }
 app.setAppUserModelId('br.postit.demandas');
 
@@ -68,7 +71,7 @@ function abrirFolha(id, referencia) {
     frame: false,
     alwaysOnTop: e.top !== false,
     autoHideMenuBar: true,
-    title: 'Post-it',
+    title: 'Gege Post-it',
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#2C303C' : '#FFFDF6',
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false }
   });
@@ -108,7 +111,7 @@ function iniciarAtualizacao() {
     paraTodas('update:disponivel', info.version);
     if (versaoAvisada !== info.version) {
       versaoAvisada = info.version;
-      avisar('Atualização disponível', 'A versão ' + info.version + ' do Post-it está sendo baixada.');
+      avisar('Atualização disponível', 'A versão ' + info.version + ' do Gege Post-it está sendo baixada.');
     }
   });
   autoUpdater.on('update-downloaded', (info) => {

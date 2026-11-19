@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Post-it · Minhas demandas</title>
+<title>Gege Post-it</title>
 <style>
 :root {
   --esc: 1;
@@ -442,7 +442,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
     data = data.charAt(0).toUpperCase() + data.slice(1);
     $('saudacao').textContent = F.nome;
     $('subtitulo').textContent = `${sauda}, ${USUARIA} · ${data}`;
-    document.title = F.nome + ' · Post-it';
+    document.title = F.nome + ' · Gege Post-it';
     const tot = state.tarefas.length, ok = state.tarefas.filter(t => t.feito).length;
     $('barraFill').style.width = (tot ? Math.round(ok / tot * 100) : 0) + '%';
     const un = tipo === 'lembretes' ? 'concluídos' : 'concluídas';
