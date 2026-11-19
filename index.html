@@ -32,6 +32,13 @@ html[data-papel="ceu"]     { --papel:#F0F8FF; --linha:#D0E4F5; --margem:#AACCEF;
 html[data-papel="noite"]   { --campo: color-mix(in srgb, var(--papel) 86%, #fff); --papel:#2C303C; --linha:#3B4151; --margem:#6E5E80; --destaque:#E6B8D0; --tinta:#ECEAF2; --suave:#A9A7B8; --sobre:#2C303C; --alerta:#F08C86;
   --c1:#8DB6DE; --c2:#8FCB9F; --c3:#E6B085; --c4:#BBA3DD; --c5:#7CC6C2; --c6:#B5B5B5; }
 
+/* etiquetas (categorias) acompanham a cor do tema */
+html[data-papel="rosa"]    { --c1:#D9728A; --c2:#C26A9C; --c3:#E08A7A; --c4:#B97AA8; --c5:#D98BA0; --c6:#A8808C; }
+html[data-papel="lavanda"] { --c1:#9C82D4; --c2:#7F8FD6; --c3:#B57AC2; --c4:#8F7AB8; --c5:#7AA3D0; --c6:#9A93AD; }
+html[data-papel="menta"]   { --c1:#5FAE86; --c2:#6BB3A0; --c3:#8DB86A; --c4:#4F9C94; --c5:#79A875; --c6:#7E9A8A; }
+html[data-papel="pessego"] { --c1:#E8935F; --c2:#D9A441; --c3:#C9786B; --c4:#B58A5E; --c5:#D98F7A; --c6:#A38670; }
+html[data-papel="ceu"]     { --c1:#5B9BD5; --c2:#5FB0C9; --c3:#7A8FD0; --c4:#4F86B8; --c5:#6AA7B5; --c6:#8397A8; }
+
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; }
 body { background: color-mix(in srgb, var(--papel) 78%, #8a7f6a); color: var(--tinta); font-family: var(--fonte); font-size: 1rem; }
@@ -246,6 +253,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
         <div class="linha-aj"><span>Tema</span><div class="opts" id="optDecor"></div></div>
         <div class="linha-aj"><span>Cantos</span><div class="opts" id="optCantos"></div></div>
         <div class="linha-aj"><span>Letra</span><div class="opts" id="optFonte"></div></div>
+        <div class="linha-aj"><span></span><button class="btn suave" id="btnTodas">Aplicar este visual a todas as folhas</button><span id="msgTodas" style="width:auto"></span></div>
         <div class="prog-txt">Dica: Ctrl + roda do mouse (ou Ctrl + / Ctrl −) muda o tamanho. Arraste as bordas da janela para ajustar a largura e a altura.</div>
       </div>
 
@@ -300,6 +308,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
   const PAPEIS = [['creme','#FFFDF6','Creme'],['rosa','#FFE3E8','Rosa'],['lavanda','#E9E0FA','Lavanda'],['menta','#DDF3E6','Menta'],['pessego','#FFE6D2','Pêssego'],['ceu','#DCEEFC','Céu'],['noite','#2C303C','Noite']];
   const DECORS = [['nenhum','Nenhum'],['plantas','🌿 Plantas'],['corujas','🦉 Corujas'],['cachorros','🐶 Cachorros']];
   const ILU = { plantas: ['#planta', '#folha-m', '#folha-m', '#folha-m'], corujas: ['#coruja', '#mini-pena', '#mini-pena', '#mini-pena'], cachorros: ['#cao', '#mini-pata', '#mini-pata', '#mini-pata'] };
+  const TEMA_PAPEL = { nenhum: 'creme', plantas: 'menta', corujas: 'lavanda', cachorros: 'pessego' };
   const CANTOS = [['reto','Retos'],['suave','Suaves'],['redondo','Bem redondos']];
   const FONTES = [['manuscrita','Manuscrita'],['normal','Normal']];
 
@@ -377,6 +386,16 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
     $('optDecor').innerHTML = opts(DECORS, 'decor');
     $('optCantos').innerHTML = opts(CANTOS, 'cantos');
     $('optFonte').innerHTML = opts(FONTES, 'fonte');
+  }
+  function aplicarATodas() {
+    const c = state.cfg; let n = 0;
+    lerIndice().forEach(i => {
+      if (i.id === F.id) return;
+      const o = lerJ(FK(i.id)); if (!o) return;
+      o.cfg = Object.assign(cfgPadrao(), o.cfg || {}, { papel: c.papel, decor: c.decor, cantos: c.cantos, fonte: c.fonte });
+      gravarJ(FK(i.id), o); n++;
+    });
+    $('msgTodas').textContent = n ? 'Visual aplicado em ' + n + ' folha' + (n === 1 ? '' : 's') + '.' : 'Não há outras folhas.';
   }
   function setEscala(v) { state.cfg.escala = Math.max(70, Math.min(160, Math.round(v))); salvar(); aplicarCfg(); }
 
@@ -574,7 +593,8 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
     const echip = tg.closest('[data-ecat]');
     if (echip) { editCat = (editCat === echip.dataset.ecat) ? null : echip.dataset.ecat; echip.parentNode.querySelectorAll('[data-ecat]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ecat === editCat))); return; }
     const cf = tg.closest('[data-cfg]');
-    if (cf) { const [k, v] = cf.dataset.cfg.split(':'); state.cfg[k] = v; salvar(); aplicarCfg(); return; }
+    if (cf) { const [k, v] = cf.dataset.cfg.split(':'); state.cfg[k] = v; if (k === 'decor' && TEMA_PAPEL[v]) state.cfg.papel = TEMA_PAPEL[v]; salvar(); aplicarCfg(); return; }
+    if (tg.id === 'btnTodas') { aplicarATodas(); return; }
     if (tg.id === 'btnConfig') { $('painel').hidden = !$('painel').hidden; tg.classList.toggle('ativo', !$('painel').hidden); return; }
     if (tg.id === 'btnAdd') { adicionar(); return; }
     if (tg.id === 'btnLimpar') { state.tarefas = state.tarefas.filter(t => !t.feito); salvar(); render(); return; }
@@ -615,7 +635,12 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
     else if (e.key === '-') { e.preventDefault(); setEscala(state.cfg.escala - 5); }
     else if (e.key === '0') { e.preventDefault(); setEscala(100); }
   });
-  window.addEventListener('storage', (e) => { if (e.key === IDX && !$('menu').hidden) renderMenu(); });
+  window.addEventListener('storage', (e) => {
+    if (e.key === IDX && !$('menu').hidden) renderMenu();
+    if (e.key === FK(F.id) && e.newValue) {            // outra janela aplicou um visual a esta folha
+      try { const n = JSON.parse(e.newValue).cfg; Object.assign(state.cfg, { papel: n.papel, decor: n.decor, cantos: n.cantos, fonte: n.fonte }); aplicarCfg(); renderCats(); } catch (err) {}
+    }
+  });
 
   // ---------- recados (texto livre) ----------
   const rec = $('recado');
