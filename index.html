@@ -112,11 +112,11 @@ body.app .linha-aj.so-app { display: flex; }
 /* ---------- formulário ---------- */
 .form { display: grid; grid-template-columns: minmax(0, 1fr); gap: .45em; margin-bottom: .6em; }
 .linha-add { display: flex; gap: .4em; }
-.form input[type=text], .form input[type=date], .e-titulo, .e-datas input {
+.form input[type=text], .form input[type=date], .notas .linha-add input, .e-titulo, .e-datas input {
   background: var(--campo); border: 1px solid var(--linha); border-radius: var(--r); padding: .35em .65em; min-width: 0; color: var(--tinta);
 }
 html[data-papel="noite"] { color-scheme: dark; }
-.form input:focus, .e-titulo:focus, .e-datas input:focus { outline: 2px solid color-mix(in srgb, var(--destaque) 60%, transparent); outline-offset: 0; }
+.form input:focus, .notas .linha-add input:focus, .e-titulo:focus, .e-datas input:focus { outline: 2px solid color-mix(in srgb, var(--destaque) 60%, transparent); outline-offset: 0; }
 .linha-add input { flex: 1; min-width: 0; }
 .linha-add .btn { flex: none; }
 .btn { cursor: pointer; background: var(--destaque); color: var(--sobre); border: 1px solid var(--destaque); border-radius: var(--r); padding: .3em .9em; }
@@ -183,6 +183,21 @@ body[data-tipo="recados"] .recado { display: block; }
 body[data-tipo="recados"] .progresso, body[data-tipo="recados"] .abas, body[data-tipo="recados"] .form,
 body[data-tipo="recados"] .resumo-linha, body[data-tipo="recados"] .lista { display: none; }
 body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; padding-top: 0; }
+/* ---------- bloco de notas ---------- */
+.notas { display: none; }
+body[data-tipo="notas"] .notas { display: block; }
+body[data-tipo="notas"] .progresso, body[data-tipo="notas"] .abas, body[data-tipo="notas"] .form,
+body[data-tipo="notas"] .resumo-linha, body[data-tipo="notas"] .lista, body[data-tipo="notas"] .recado { display: none; }
+.nota-resumo { margin: .1em 0 .3em; font-size: .82em; color: var(--suave); }
+.nota-item { border-bottom: 1px dotted color-mix(in srgb, var(--linha) 70%, transparent); }
+.nota-cab { display: flex; align-items: center; gap: .5em; padding: .4em 0; cursor: pointer; }
+.nota-cab .seta { flex: none; width: 1em; text-align: center; color: var(--destaque); }
+.nota-titulo { flex: 1; min-width: 0; font-size: 1.05em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nota-item.aberta .nota-titulo { font-weight: 600; }
+.nota-texto { display: block; width: 100%; min-height: 5em; margin: .1em 0 .7em; padding: .45em .65em; border: 1px solid var(--linha); border-radius: var(--r);
+  background: var(--campo); color: var(--tinta); font: inherit; line-height: 1.5; resize: none; outline: 0; overflow: hidden; }
+.nota-texto:focus, .nota-edit:focus { outline: 2px solid color-mix(in srgb, var(--destaque) 60%, transparent); }
+.nota-edit { flex: 1; min-width: 0; background: var(--campo); border: 1px solid var(--linha); border-radius: var(--r); padding: .25em .55em; color: var(--tinta); font: inherit; }
 .menu { position: absolute; top: 3.4em; right: .8em; z-index: 20; min-width: 15em; max-width: calc(100% - 1.6em); background: var(--papel);
   border: 1px solid var(--margem); border-radius: var(--r); box-shadow: 0 .3em 1.2em rgba(0,0,0,.28); padding: .5em; display: grid; gap: .15em; }
 .menu[hidden] { display: none; }
@@ -284,6 +299,12 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
       <div class="resumo-linha"><span id="resumo"></span><button class="limpar" id="btnLimpar" hidden>Limpar concluídas</button></div>
       <div class="lista" id="lista"></div>
 
+      <div class="notas" id="notasBox">
+        <div class="linha-add"><input id="nTitulo" type="text" placeholder="＋ Título da nova nota…" autocomplete="off"><button class="btn" id="btnNota">Nova nota</button></div>
+        <div class="nota-resumo" id="nContagem"></div>
+        <div id="listaNotas"></div>
+      </div>
+
       <textarea class="recado" id="recado" placeholder="Escreva seu recado aqui…" spellcheck="true"></textarea>
 
     </div>
@@ -312,7 +333,8 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
   const TIPOS = {
     tarefas:   { nome: 'Tarefas',   icone: '✅', papel: 'creme' },
     recados:   { nome: 'Recados',   icone: '📝', papel: 'pessego' },
-    lembretes: { nome: 'Lembretes', icone: '🔔', papel: 'rosa' }
+    lembretes: { nome: 'Lembretes', icone: '🔔', papel: 'rosa' },
+    notas:     { nome: 'Notas',     icone: '🗒️', papel: 'ceu' }
   };
   const CATS = [['Orçamento','--c1'],['Zeev','--c2'],['Reunião','--c3'],['Planejamento','--c4'],['Análise','--c5'],['Outros','--c6']];
   const corCat = (n) => (CATS.find(c => c[0] === n) || [])[1];
@@ -351,7 +373,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
   }
   function novaFolha(tipo) {
     const id = 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-    const F = { id, tipo, nome: TIPOS[tipo].nome, cfg: Object.assign(cfgPadrao(), { papel: TIPOS[tipo].papel }), tarefas: [], seq: 1, filtro: 'hoje', texto: '' };
+    const F = { id, tipo, nome: TIPOS[tipo].nome, cfg: Object.assign(cfgPadrao(), { papel: TIPOS[tipo].papel }), tarefas: [], seq: 1, filtro: 'hoje', texto: '', notas: [], seqN: 1 };
     gravarJ(FK(id), F);
     const ix = lerIndice(); ix.push({ id, tipo, nome: F.nome }); gravarJ(IDX, ix);
     return F;
@@ -369,19 +391,20 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
     const F = lerJ(FK(id));
     F.cfg = Object.assign(cfgPadrao(), F.cfg || {});
     F.tarefas = F.tarefas || []; F.seq = F.seq || 1; F.texto = F.texto || '';
+    F.notas = F.notas || []; F.seqN = F.seqN || 1;
     return F;
   }
   const F = iniciarFolha();
   const tipo = F.tipo;
   const state = F;
-  const salvar = () => gravarJ(FK(F.id), F);
+  const salvar = () => { if (lerIndice().some(i => i.id === F.id)) gravarJ(FK(F.id), F); };   // não recria folha já excluída
   function syncIndice() { const ix = lerIndice(); const i = ix.find(x => x.id === F.id); if (i && i.nome !== F.nome) { i.nome = F.nome; gravarJ(IDX, ix); } }
   const FILTROS = tipo === 'lembretes'
     ? [['hoje','Hoje'],['proximos','Próximos'],['tudo','Todos'],['feitas','Feitos']]
     : [['hoje','Hoje'],['semana','Semana'],['tudo','Tudo'],['feitas','Feitas']];
   if (!FILTROS.some(f => f[0] === state.filtro)) state.filtro = 'hoje';
   document.body.dataset.tipo = tipo;
-  let catSel = null, editId = null, editCat = null;
+  let catSel = null, editId = null, editCat = null, editNotaId = null, tmNota = null;
 
   // ---------- aparência ----------
   function aplicarCfg() {
@@ -503,7 +526,51 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
       : { hoje: 'Nada para hoje por aqui. 🌿', semana: 'Nada planejado para esta semana.', tudo: 'Escreva acima e aperte Enter ☝️', feitas: 'Nenhuma tarefa concluída ainda.' };
     $('lista').innerHTML = lista.length ? lista.map(linhaTarefa).join('') : `<div class="vazio">${vazios[f]}</div>`;
   }
-  function render() { renderTopo(); renderAbas(); renderLista(); renderCats(); }
+  // ---------- bloco de notas: só os títulos; abrir mostra o texto todo ----------
+  const autoTam = (ta) => { ta.style.height = 'auto'; ta.style.height = Math.max(ta.scrollHeight + 2, 5 * 15) + 'px'; };
+  function renderNotas() {
+    if (tipo !== 'notas') return;
+    const n = state.notas.length;
+    $('nContagem').textContent = n ? `${n} nota${n === 1 ? '' : 's'}` : 'Nenhuma nota ainda';
+    $('listaNotas').innerHTML = n ? state.notas.map(nt => {
+      if (nt.id === editNotaId) return `<div class="nota-item" data-nid="${nt.id}"><div class="nota-cab"><span class="seta">${nt.aberta ? '▾' : '▸'}</span><input class="nota-edit" type="text" value="${esc(nt.titulo)}" autocomplete="off"></div></div>`;
+      return `<div class="nota-item ${nt.aberta ? 'aberta' : ''}" data-nid="${nt.id}">
+        <div class="nota-cab" data-nt="${nt.id}"><span class="seta">${nt.aberta ? '▾' : '▸'}</span><span class="nota-titulo" title="${esc(nt.titulo)}">${esc(nt.titulo)}</span>
+          <button class="mini" data-ne="${nt.id}" title="Renomear">✎</button><button class="mini" data-nd="${nt.id}" title="Excluir nota">✕</button></div>
+        ${nt.aberta ? `<textarea class="nota-texto" data-nid="${nt.id}" placeholder="Escreva aqui…" spellcheck="true">${esc(nt.texto)}</textarea>` : ''}
+      </div>`;
+    }).join('') : '<div class="vazio">Escreva um título acima e aperte Enter para criar a primeira nota.</div>';
+    app.querySelectorAll('.nota-texto').forEach(autoTam);
+  }
+  function addNota() {
+    const t = $('nTitulo').value.trim();
+    if (!t) { $('nTitulo').focus(); return; }
+    const nt = { id: state.seqN++, titulo: t, texto: '', aberta: true };
+    state.notas.unshift(nt);
+    $('nTitulo').value = ''; salvar(); renderNotas();
+    const ta = app.querySelector(`.nota-texto[data-nid="${nt.id}"]`); if (ta) ta.focus();
+  }
+  function alternarNota(id) {
+    const nt = state.notas.find(x => x.id === id); if (!nt) return;
+    nt.aberta = !nt.aberta; salvar(); renderNotas();
+    if (nt.aberta) { const ta = app.querySelector(`.nota-texto[data-nid="${id}"]`); if (ta) ta.focus(); }
+  }
+  function renomearNota(id) {
+    editNotaId = id; renderNotas();
+    const el = app.querySelector('.nota-edit'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+  }
+  function fecharRenomear(salvarTxt) {
+    if (editNotaId === null) return;
+    const el = app.querySelector('.nota-edit'), nt = state.notas.find(x => x.id === editNotaId);
+    if (salvarTxt && el && nt && el.value.trim()) nt.titulo = el.value.trim();
+    editNotaId = null; salvar(); renderNotas();
+  }
+  function excluirNota(id) {
+    const nt = state.notas.find(x => x.id === id); if (!nt) return;
+    if (!confirm('Excluir a nota "' + nt.titulo + '"?')) return;
+    state.notas = state.notas.filter(x => x.id !== id); salvar(); renderNotas();
+  }
+  function render() { renderTopo(); renderAbas(); renderLista(); renderCats(); renderNotas(); }
 
   // ---------- ações (tarefas e lembretes) ----------
   function adicionar() {
@@ -597,6 +664,10 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
     if (tg.closest('[data-sair]')) { App && App.sair(); return; }
     if (tg.id === 'btnMenu') { const m = $('menu'); m.hidden = !m.hidden; if (!m.hidden) renderMenu(); return; }
     if (!tg.closest('#menu')) $('menu').hidden = true;
+    const nd = tg.closest('[data-nd]'); if (nd) { excluirNota(+nd.dataset.nd); return; }
+    const ne = tg.closest('[data-ne]'); if (ne) { renomearNota(+ne.dataset.ne); return; }
+    const nt = tg.closest('[data-nt]'); if (nt && editNotaId === null) { alternarNota(+nt.dataset.nt); return; }
+    if (tg.id === 'btnNota') { addNota(); return; }
     const f = tg.closest('[data-filtro]');
     if (f) { state.filtro = f.dataset.filtro; editId = null; salvar(); render(); return; }
     const chip = tg.closest('[data-cat]');
@@ -626,8 +697,15 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
   app.addEventListener('input', (e) => {
     if (e.target.id === 'rEsc') setEscala(+e.target.value);
     else if (e.target.id === 'rNome') { F.nome = e.target.value.trim() || TIPOS[tipo].nome; salvar(); renderTopo(); }
+    else if (e.target.classList && e.target.classList.contains('nota-texto')) {
+      const nt = state.notas.find(x => x.id === +e.target.dataset.nid);
+      if (nt) { nt.texto = e.target.value; autoTam(e.target); clearTimeout(tmNota); tmNota = setTimeout(salvar, 300); }
+    }
   });
-  app.addEventListener('dblclick', (e) => { const n = e.target.closest('.nome'); if (n) abrirEdicao(+n.closest('.tarefa').dataset.id); });
+  app.addEventListener('dblclick', (e) => {
+    const n = e.target.closest('.nome'); if (n) { abrirEdicao(+n.closest('.tarefa').dataset.id); return; }
+    const nt = e.target.closest('.nota-titulo'); if (nt) renomearNota(+nt.closest('.nota-item').dataset.nid);
+  });
   app.addEventListener('keydown', (e) => {
     const t = e.target;
     if (t.classList && t.classList.contains('e-titulo')) {
@@ -635,6 +713,12 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
       if (e.key === 'Escape') { editId = null; renderLista(); }
       return;
     }
+    if (t.classList && t.classList.contains('nota-edit')) {
+      if (e.key === 'Enter') fecharRenomear(true);
+      if (e.key === 'Escape') fecharRenomear(false);
+      return;
+    }
+    if (e.key === 'Enter' && t.id === 'nTitulo') { addNota(); return; }
     if (e.key === 'Enter' && (t.id === 'fTitulo' || t.id === 'fIni' || t.id === 'fFim' || t.id === 'fHora')) adicionar();
     if (e.key === 'Escape') $('menu').hidden = true;
   });
@@ -657,7 +741,11 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
   rec.value = F.texto || '';
   let tmRec = null;
   rec.addEventListener('input', () => { F.texto = rec.value; clearTimeout(tmRec); tmRec = setTimeout(salvar, 300); });
-  window.addEventListener('beforeunload', () => { if (tipo === 'recados') { F.texto = rec.value; salvar(); } });
+  window.addEventListener('beforeunload', () => {
+    if (tipo === 'recados') { F.texto = rec.value; salvar(); }
+    else if (tipo === 'notas' && tmNota) { clearTimeout(tmNota); salvar(); }
+  });
+  app.addEventListener('focusout', (e) => { if (e.target.classList && e.target.classList.contains('nota-edit')) fecharRenomear(true); });
 
   // ---------- janela / atualização ----------
   if (App) {
@@ -693,7 +781,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
   $('rNome').value = F.nome;
   $('fTitulo').placeholder = tipo === 'lembretes' ? '＋ Escreva um lembrete…' : '＋ Escreva uma tarefa…';
   $('lblIni').textContent = tipo === 'lembretes' ? 'Data' : 'Início';
-  $('dicaTipo').textContent = tipo === 'recados' ? 'Tudo o que você escreve é salvo automaticamente.' : tipo === 'lembretes' ? 'Lembretes com hora avisam no Windows enquanto esta folha estiver aberta (pode ficar minimizada).' : 'Clique em ✎ (ou duas vezes no texto) para editar uma tarefa.';
+  $('dicaTipo').textContent = tipo === 'recados' ? 'Tudo o que você escreve é salvo automaticamente.' : tipo === 'lembretes' ? 'Lembretes com hora avisam no Windows enquanto esta folha estiver aberta (pode ficar minimizada).' : tipo === 'notas' ? 'Clique no título para abrir ou fechar a nota; duplo clique no título (ou ✎) para renomear. O texto salva sozinho.' : 'Clique em ✎ (ou duas vezes no texto) para editar uma tarefa.';
   $('fIni').value = hojeISO(); $('fFim').value = hojeISO();
   aplicarCfg(); salvar(); render(); checarLembretes();
 })();
