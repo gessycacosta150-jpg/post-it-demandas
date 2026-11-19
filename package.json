@@ -1,0 +1,36 @@
+{
+  "name": "post-it-demandas",
+  "productName": "Post-it Demandas",
+  "version": "1.0.0",
+  "description": "Post-it de demandas e checklist semanal para a área de trabalho",
+  "main": "main.js",
+  "author": "Gessyca Costa",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "dependencies": {
+    "electron-updater": "6.3.9"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "br.postit.demandas",
+    "productName": "Post-it Demandas",
+    "artifactName": "Post-it-Demandas-Setup-${version}.${ext}",
+    "directories": { "buildResources": "build" },
+    "files": ["index.html", "main.js", "preload.js", "package.json"],
+    "win": { "target": [{ "target": "nsis", "arch": ["x64"] }] },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": [{ "provider": "github", "releaseType": "release" }]
+  }
+}
