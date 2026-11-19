@@ -1,421 +1,632 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-papel="creme" data-cantos="suave" data-fonte="manuscrita" data-decor="plantas">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Post-it · Minhas demandas</title>
 <style>
-
 :root {
-  --font: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
-  --raio: 6px;
-  --bg: #E9E9E6;
-  --surface: #FFFFFF;
-  --surface-alt: #FFF6BF;   /* papel do post-it */
-  --text: #222222;
-  --text-muted: #666256;
-  --heading: #222222;
-  --accent: #E3B505;
-  --accent-text: #8A6D00;
-  --border: rgba(0, 0, 0, 0.14);
-  --negativo: #C0392B;
-  --btn-bg: #2B2B2B;
-  --btn-text: #FFFFFF;
-  --on-accent: #222222;
-  --c1: #3D7EBF; --c2: #2F8F5B; --c3: #B5651D; --c4: #7A4FA3; --c5: #0E8A8A; --c6: #6F6F6F;
+  --esc: 1;
+  --fonte-man: "Ink Free", "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+  --fonte-txt: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  --fonte: var(--fonte-man);
+  --lh: 2em;
+  --alerta: #C9706B;
+  --c1: #6C9BC9; --c2: #7FB28E; --c3: #D49A6A; --c4: #A58BC9; --c5: #66B3B0; --c6: #9A9A9A;
+  /* papel padrão: creme */
+  --papel: #FFFDF6; --linha: #D8E6EF; --margem: #F1BDB8; --tinta: #3F3B35; --suave: #8C867A; --destaque: #D98E8E; --sobre: #FFFFFF;
+  --r: .6em; --rp: 99em;
+  --campo: color-mix(in srgb, var(--papel) 55%, #fff);
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1B1B1B;
-    --surface: #2B2B2B;
-    --surface-alt: #3A3724;
-    --text: #F0EEE6;
-    --text-muted: #B8B39F;
-    --heading: #FFFFFF;
-    --accent: #F2C94C;
-    --accent-text: #F2C94C;
-    --border: rgba(255, 255, 255, 0.16);
-    --negativo: #FF7A6B;
-    --btn-bg: #F2C94C;
-    --btn-text: #222222;
-  }
-}
-@media (prefers-color-scheme: dark) { :root { --c1: #6FA8E0; --c2: #5CC48C; --c3: #E39A55; --c4: #B08BD6; --c5: #4FC7C7; --c6: #A8A8A8; } }
-body { background: var(--bg); color: var(--text); font-family: var(--font); }
-h1 { font-family: var(--font); font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--heading); }
-input, select, button { font-family: var(--font); }
+html { font-size: calc(15px * var(--esc)); }
+html[data-fonte="normal"] { --fonte: var(--fonte-txt); }
+html[data-cantos="reto"]   { --r: 0;     --rp: 0; }
+html[data-cantos="suave"]  { --r: .6em;  --rp: 99em; }
+html[data-cantos="redondo"]{ --r: 1.2em; --rp: 99em; }
 
+html[data-papel="rosa"]    { --papel:#FFF2F4; --linha:#F6D8DE; --margem:#F2AAB7; --destaque:#D9728A; --tinta:#4A3B3F; --suave:#957E84; }
+html[data-papel="lavanda"] { --papel:#F7F3FF; --linha:#DFD6F3; --margem:#CBBBEC; --destaque:#9C82D4; --tinta:#3F3A4F; --suave:#8A84A0; }
+html[data-papel="menta"]   { --papel:#F1FAF5; --linha:#CFE8DB; --margem:#AADCC0; --destaque:#5FAE86; --tinta:#34413A; --suave:#7B8F84; }
+html[data-papel="pessego"] { --papel:#FFF5EB; --linha:#F6E0CC; --margem:#F3BF9A; --destaque:#E8935F; --tinta:#4A3E34; --suave:#977F6B; }
+html[data-papel="ceu"]     { --papel:#F0F8FF; --linha:#D0E4F5; --margem:#AACCEF; --destaque:#5B9BD5; --tinta:#33404D; --suave:#788CA0; }
+html[data-papel="noite"]   { --campo: color-mix(in srgb, var(--papel) 86%, #fff); --papel:#2C303C; --linha:#3B4151; --margem:#6E5E80; --destaque:#E6B8D0; --tinta:#ECEAF2; --suave:#A9A7B8; --sobre:#2C303C; --alerta:#F08C86;
+  --c1:#8DB6DE; --c2:#8FCB9F; --c3:#E6B085; --c4:#BBA3DD; --c5:#7CC6C2; --c6:#B5B5B5; }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; }
-body { background: var(--bg); min-height: 100vh; padding: 16px; font-size: 14px; }
-body.pip { padding: 0; min-height: 100%; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body { background: color-mix(in srgb, var(--papel) 78%, #8a7f6a); color: var(--tinta); font-family: var(--fonte); font-size: 1rem; }
+button, input, select { font-family: inherit; font-size: inherit; color: inherit; }
 
-.nota {
-  max-width: 420px; margin: 0 auto;
-  background: var(--surface-alt);
-  border-top: 5px solid var(--accent);
-  padding: 14px 14px 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.15);
+/* ---------- folha de caderno ---------- */
+.folha {
+  position: relative; display: flex; flex-direction: column;
+  max-width: 34em; height: calc(100vh - 2em); margin: 1em auto;
+  background: var(--papel); border-radius: var(--r);
+  box-shadow: 0 .15em .9em rgba(60, 50, 30, .22); overflow: hidden;
 }
-body.pip .nota { max-width: none; min-height: 100vh; margin: 0; }
-
-.topo { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
-.topo h1 { font-size: 15px; margin: 0; display: flex; align-items: center; gap: 10px; }
-.btn {
-  font: inherit; font-size: 12px; cursor: pointer;
-  background: transparent; color: var(--heading);
-  border: 1px solid var(--border); padding: 5px 9px; border-radius: var(--raio);
+body.app { background: var(--papel); }
+body.app .folha, body.pip .folha { max-width: none; height: 100vh; margin: 0; border-radius: 0; box-shadow: none; }
+.folha::before {                       /* furinhos da espiral */
+  content: ""; position: absolute; left: .55em; top: 0; bottom: 0; width: 1.3em; z-index: 2; pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--papel) 70%, #6b6558) 0 .3em, rgba(0,0,0,.10) .32em .4em, transparent .44em) 0 .6em / 1.3em 2.4em repeat-y;
 }
-.btn:hover { border-color: var(--accent); }
-.btn--forte { background: var(--btn-bg); color: var(--btn-text); border-color: var(--btn-bg); }
-
-.dias { display: flex; gap: 4px; margin-bottom: 8px; }
-.dia {
-  flex: 1; font: inherit; font-size: 12px; cursor: pointer; text-align: center;
-  background: transparent; color: var(--text-muted);
-  border: 0; border-bottom: 2px solid var(--border); padding: 6px 0 5px;
+.folha::after {                        /* margem vermelha */
+  content: ""; position: absolute; left: 3em; top: 0; bottom: 0; width: 1px; background: var(--margem); opacity: .9; pointer-events: none; z-index: 1;
 }
-.dia[aria-selected="true"] { color: var(--heading); border-bottom-color: var(--accent); font-weight: 600; }
-.dia .n { font-size: 10px; color: var(--accent-text); margin-left: 2px; }
-.dia.hoje::after { content: "•"; color: var(--accent-text); margin-left: 3px; }
-
-.resumo { font-size: 12px; color: var(--text-muted); margin: 0 0 8px; }
-
-.form { display: grid; grid-template-columns: 1fr 86px 76px; gap: 6px; margin-bottom: 10px; }
-.form input, .form select {
-  font: inherit; font-size: 13px; color: var(--text); background: var(--surface);
-  border: 1px solid var(--border); padding: 7px 8px; border-radius: var(--raio); min-width: 0;
-}
-.form input:focus, .form select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
-.form .linha-add { grid-column: 1 / -1; display: flex; gap: 6px; }
-.form .linha-add .titulo { flex: 1; font-size: 14px; padding: 9px 10px; }
-.nome[contenteditable="true"] { outline: 2px solid var(--accent); outline-offset: 2px; background: var(--surface-alt); }
-.nome { cursor: text; }
-.resumo { display: flex; justify-content: space-between; align-items: center; min-height: 22px; }
-.limpar { font: inherit; font-size: 11.5px; cursor: pointer; background: none; border: 0; color: var(--text-muted); text-decoration: underline; padding: 0; }
-.limpar:hover { color: var(--heading); }
-.tarefa.simples { padding: 7px 9px; }
-
-.lista { display: flex; flex-direction: column; gap: 6px; }
-.vazio { color: var(--text-muted); font-size: 13px; padding: 14px 4px; text-align: center; }
-
-.tarefa {
-  background: var(--surface); border-left: 4px solid var(--border);
-  padding: 8px 9px 7px; display: grid; gap: 5px;
-}
-.tarefa.rodando { border-left-color: var(--accent); }
-.tarefa.esgotado { border-left-color: var(--negativo); }
-.tarefa.feito { opacity: .55; }
-.tarefa.feito .nome { text-decoration: line-through; }
-.linha1 { display: flex; align-items: flex-start; gap: 8px; }
-.linha1 input[type=checkbox] { margin-top: 3px; accent-color: var(--btn-bg); }
-.nome { flex: 1; font-size: 13.5px; line-height: 1.3; word-break: break-word; }
-.hora { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
-.linha2 { display: flex; align-items: center; gap: 6px; }
-.tempo { font-size: 18px; font-weight: 600; color: var(--heading); letter-spacing: .02em; min-width: 74px; }
-.tarefa.esgotado .tempo { color: var(--negativo); }
-.status { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); flex: 1; }
-.tarefa.esgotado .status { color: var(--negativo); font-weight: 700; }
-.mini {
-  font: inherit; font-size: 12px; cursor: pointer; line-height: 1;
-  background: transparent; color: var(--text-muted);
-  border: 1px solid var(--border); padding: 5px 7px; border-radius: var(--raio);
-}
-.mini:hover { color: var(--heading); border-color: var(--accent); }
-.mini.play { color: var(--heading); border-color: var(--heading); min-width: 34px; }
-
-.aviso { font-size: 11.5px; color: var(--text-muted); margin: 8px 0 0; }
-.fixado-msg { max-width: 420px; margin: 0 auto; padding: 18px; background: var(--surface-alt); border-top: 5px solid var(--accent); text-align: center; color: var(--text-muted); }
-.fixado-msg[hidden] { display: none; }
-
+.topo { position: relative; z-index: 3; display: flex; align-items: center; gap: .6em; padding: .9em 1em .5em 3.5em; flex: none; }
+.saudacao { flex: 1; min-width: 0; }
+.tit { margin: 0; font-size: 1.25em; font-weight: 600; line-height: 1.15; overflow-wrap: anywhere; }
+.sub { font-size: .8em; color: var(--suave); margin-top: .15em; }
+.ilu { flex: none; width: 5em; height: 3.7em; color: var(--destaque); display: block; }
+html[data-decor="nenhum"] .ilu, html[data-decor="nenhum"] .base-deco { display: none; }
+.ctrl { display: flex; gap: .25em; flex: none; align-self: flex-start; }
+.ico { cursor: pointer; background: transparent; border: 1px solid transparent; color: var(--suave); border-radius: var(--rp); width: 1.9em; height: 1.9em; line-height: 1; padding: 0; }
+.ico:hover, .ico.ativo { background: color-mix(in srgb, var(--destaque) 20%, transparent); color: var(--tinta); }
 .drag { -webkit-app-region: drag; }
-.ctrl, .ctrl *, input, select, button, .lista, .dias { -webkit-app-region: no-drag; }
-.ctrl { display: flex; gap: 4px; margin-left: auto; }
-.ctrl .btn { padding: 4px 7px; font-size: 13px; line-height: 1; }
-.btn.ativo { background: var(--accent); border-color: var(--accent); color: var(--on-accent, #222); }
+.ctrl, .ctrl *, input, select, button, .corpo, .abas, .painel { -webkit-app-region: no-drag; }
 .so-app { display: none; }
 body.app .so-app { display: inline-block; }
-.tit { font-size: 16px; margin: 0; }
-.rodape-app { display: none; font-size: 11.5px; color: var(--text-muted); margin-top: 8px; align-items: center; gap: 6px; }
-body.app .rodape-app { display: flex; }
-body.pip .nota { height: 100vh; display: flex; flex-direction: column; }
-body.pip .lista { overflow-y: auto; flex: 1; min-height: 0; padding-right: 2px; }
 
-.saudacao { min-width: 0; }
-.tit { font-size: 16px; margin: 0; line-height: 1.2; }
-.sub { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
-.semana { display: flex; flex-direction: column; gap: 4px; margin: 0 0 10px; }
-.barra { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
-.barra span { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s; }
-.semana-txt { font-size: 11.5px; color: var(--text-muted); }
-.cats { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 5px; }
-.chip { font: inherit; font-size: 11.5px; cursor: pointer; background: transparent; color: var(--c); border: 1px solid var(--c); border-radius: 12px; padding: 2px 9px; }
-.chip[aria-pressed="true"] { background: var(--c); color: var(--surface); }
-.cat { display: inline-block; font-size: 10.5px; line-height: 1.5; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); border-radius: 10px; padding: 0 7px; margin-top: 3px; }
-.nome-box { flex: 1; min-width: 0; }
-.nome-box .nome { flex: none; }
-.upd { display: none; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; padding: 8px 10px; background: var(--surface); border-left: 4px solid var(--accent); font-size: 12px; }
-.upd.on { display: flex; }
-.ver { display: none; font-size: 10.5px; color: var(--text-muted); margin-top: 6px; }
+.corpo {
+  position: relative; z-index: 3; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin;
+  padding: .2em 1em 1em 3.5em;
+  background-image: repeating-linear-gradient(to bottom, transparent 0, transparent calc(var(--lh) - 1px), color-mix(in srgb, var(--linha) 65%, transparent) calc(var(--lh) - 1px), color-mix(in srgb, var(--linha) 65%, transparent) var(--lh));
+  background-attachment: local;
+}
+@media (max-width: 330px) {
+  .folha::before { left: .3em; width: 1em; } .folha::after { left: 2.2em; }
+  .topo { padding-left: 2.6em; } .corpo { padding-left: 2.6em; padding-right: .6em; } .ilu { display: none; }
+  .linha-add .btn { padding: .3em .6em; }
+}
+
+.progresso { margin: .1em 0 .5em; }
+.barra { height: .45em; background: color-mix(in srgb, var(--linha) 80%, transparent); border-radius: 1em; overflow: hidden; }
+.barra span { display: block; height: 100%; width: 0; background: var(--destaque); border-radius: 1em; transition: width .35s; }
+.prog-txt { font-size: .78em; color: var(--suave); margin-top: .2em; }
+
+.abas { display: flex; flex-wrap: wrap; gap: .35em; margin: .2em 0 .6em; }
+.aba { cursor: pointer; background: var(--campo); border: 1px solid var(--linha); color: var(--suave); border-radius: var(--rp); padding: .1em .8em; }
+.aba[aria-selected="true"] { background: var(--destaque); border-color: var(--destaque); color: var(--sobre); }
+.aba .n { font-size: .8em; margin-left: .3em; opacity: .85; }
+
+/* ---------- painel de ajustes ---------- */
+.painel { border: 1px dashed var(--margem); border-radius: var(--r); padding: .6em .8em; margin: .2em 0 .7em; display: grid; gap: .55em; background: var(--campo); }
+.painel[hidden] { display: none; }
+.linha-aj { display: flex; align-items: center; gap: .6em; flex-wrap: wrap; }
+.linha-aj > span { width: 6em; font-size: .82em; color: var(--suave); flex: none; }
+.linha-aj input[type=range] { flex: 1; min-width: 5em; accent-color: var(--destaque); }
+.opts { display: flex; flex-wrap: wrap; gap: .3em; }
+.opt { cursor: pointer; background: transparent; border: 1px solid var(--linha); border-radius: var(--rp); padding: .05em .7em; font-size: .85em; color: var(--tinta); }
+.opt[aria-pressed="true"] { background: var(--destaque); border-color: var(--destaque); color: var(--sobre); }
+.sw { width: 1.5em; height: 1.5em; border-radius: 50%; border: 2px solid transparent; box-shadow: 0 0 0 1px rgba(0,0,0,.15) inset; cursor: pointer; padding: 0; }
+.sw[aria-pressed="true"] { border-color: var(--tinta); }
+
+/* ---------- formulário ---------- */
+.form { display: grid; grid-template-columns: minmax(0, 1fr); gap: .45em; margin-bottom: .6em; }
+.linha-add { display: flex; gap: .4em; }
+.form input[type=text], .form input[type=date], .e-titulo, .e-datas input {
+  background: var(--campo); border: 1px solid var(--linha); border-radius: var(--r); padding: .35em .65em; min-width: 0; color: var(--tinta);
+}
+html[data-papel="noite"] { color-scheme: dark; }
+.form input:focus, .e-titulo:focus, .e-datas input:focus { outline: 2px solid color-mix(in srgb, var(--destaque) 60%, transparent); outline-offset: 0; }
+.linha-add input { flex: 1; min-width: 0; }
+.linha-add .btn { flex: none; }
+.btn { cursor: pointer; background: var(--destaque); color: var(--sobre); border: 1px solid var(--destaque); border-radius: var(--r); padding: .3em .9em; }
+.btn.suave { background: transparent; color: var(--tinta); border-color: var(--linha); }
+.btn:hover { filter: brightness(.96); }
+.cats, .e-cats { display: flex; flex-wrap: wrap; gap: .3em; }
+.chip { cursor: pointer; background: transparent; color: var(--c); border: 1px solid var(--c); border-radius: var(--rp); padding: 0 .7em; font-size: .82em; line-height: 1.6; }
+.chip[aria-pressed="true"] { background: var(--c); color: var(--sobre); }
+.datas, .e-datas { display: flex; gap: .5em; flex-wrap: wrap; }
+.datas label, .e-datas label { flex: 1 1 7em; min-width: 0; font-size: .78em; color: var(--suave); display: flex; flex-direction: column; gap: .1em; }
+.datas input, .e-datas input { font-size: 1.1em; width: 100%; min-width: 0; }
+
+/* ---------- tarefas ---------- */
+.lista { display: flex; flex-direction: column; min-width: 0; }
+.vazio { color: var(--suave); text-align: center; padding: 1.2em .4em; font-size: .95em; }
+.tarefa { display: flex; align-items: flex-start; gap: .6em; padding: .4em 0 .35em; border-bottom: 1px dotted color-mix(in srgb, var(--linha) 70%, transparent); }
+.bola {
+  appearance: none; -webkit-appearance: none; flex: none; position: relative; cursor: pointer; margin: .12em 0 0;
+  width: 1.35em; height: 1.35em; border: 1.6px solid var(--destaque); border-radius: 50%; background: transparent; transition: background .15s, transform .15s;
+}
+.bola:hover { background: color-mix(in srgb, var(--destaque) 20%, transparent); }
+.bola:checked { background: var(--destaque); transform: scale(1.04); }
+.bola:checked::after { content: ""; position: absolute; left: 33%; top: 12%; width: 30%; height: 54%; border: solid var(--sobre); border-width: 0 .14em .14em 0; transform: rotate(42deg); }
+.miolo { flex: 1; min-width: 0; }
+.nome { font-size: 1.02em; line-height: 1.3; overflow-wrap: anywhere; cursor: text; }
+.feito .nome { text-decoration: line-through; color: var(--suave); }
+.feito { opacity: .7; }
+.meta { display: flex; flex-wrap: wrap; align-items: center; gap: .2em .5em; font-size: .78em; color: var(--suave); margin-top: .1em; }
+.cat { display: inline-block; color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); border-radius: var(--rp); padding: 0 .6em; line-height: 1.55; }
+.atraso { color: var(--alerta); }
+.mini { flex: none; cursor: pointer; background: transparent; border: 0; color: var(--suave); opacity: .5; width: 1.6em; height: 1.6em; border-radius: var(--rp); padding: 0; line-height: 1; }
+.mini:hover { opacity: 1; background: color-mix(in srgb, var(--destaque) 18%, transparent); }
+.editando { flex-direction: column; background: var(--campo); border: 1px solid var(--linha); border-radius: var(--r); padding: .6em; margin: .3em 0; gap: .5em; }
+.editando .e-titulo { width: 100%; }
+.e-botoes { display: flex; gap: .4em; flex-wrap: wrap; }
+.limpar { cursor: pointer; background: none; border: 0; color: var(--suave); text-decoration: underline; padding: 0; font-size: .82em; }
+.resumo-linha { display: flex; justify-content: space-between; align-items: center; min-height: 1.5em; margin: 0 0 .2em; font-size: .82em; color: var(--suave); }
+
+.rodape { margin-top: .8em; font-size: .78em; color: var(--suave); }
+.aviso { margin: .3em 0 0; }
+.rodape-app { display: none; align-items: center; gap: .4em; margin-top: .4em; }
+body.app .rodape-app { display: flex; }
+.ver { display: none; margin-top: .3em; }
 body.app .ver { display: block; }
+.base-deco { display: flex; gap: .6em; justify-content: flex-end; margin-top: .6em; color: var(--destaque); opacity: .55; }
+.base-deco svg { width: 1.3em; height: 1.3em; }
+.upd { display: none; align-items: center; justify-content: space-between; gap: .5em; margin-top: .5em; padding: .5em .7em; background: color-mix(in srgb, var(--destaque) 14%, var(--papel)); border-radius: var(--r); border: 1px solid var(--destaque); }
+.upd.on { display: flex; }
+.fixado-msg { max-width: 34em; margin: 1em auto; padding: 1.2em; text-align: center; color: var(--suave); }
+.fixado-msg[hidden] { display: none; }
+
+/* ---------- várias folhas ---------- */
+.so-tar, .so-lemb { }
+body[data-tipo="lembretes"] .so-tar { display: none !important; }
+body[data-tipo="tarefas"] .so-lemb, body[data-tipo="recados"] .so-lemb { display: none !important; }
+.recado { display: none; flex: 1; min-height: 10em; width: 100%; resize: none; border: 0; outline: 0; background: transparent; color: var(--tinta);
+  font: inherit; line-height: var(--lh); padding: 0; overflow: auto; scrollbar-width: thin; }
+.recado::placeholder { color: var(--suave); opacity: .8; }
+body[data-tipo="recados"] .recado { display: block; }
+body[data-tipo="recados"] .progresso, body[data-tipo="recados"] .abas, body[data-tipo="recados"] .form,
+body[data-tipo="recados"] .resumo-linha, body[data-tipo="recados"] .lista { display: none; }
+body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; padding-top: 0; }
+.menu { position: absolute; top: 3.4em; right: .8em; z-index: 20; min-width: 15em; max-width: calc(100% - 1.6em); background: var(--papel);
+  border: 1px solid var(--margem); border-radius: var(--r); box-shadow: 0 .3em 1.2em rgba(0,0,0,.28); padding: .5em; display: grid; gap: .15em; }
+.menu[hidden] { display: none; }
+.menu h4 { margin: .2em .4em; font-size: .78em; font-weight: 600; color: var(--suave); }
+.menu hr { border: 0; border-top: 1px dashed var(--linha); margin: .3em 0; width: 100%; }
+.menu-linha { display: flex; align-items: center; gap: .2em; }
+.menu-item { display: flex; align-items: center; gap: .4em; width: 100%; text-align: left; cursor: pointer; background: none; border: 0; padding: .25em .45em; border-radius: var(--r); color: var(--tinta); }
+.menu-item:hover { background: color-mix(in srgb, var(--destaque) 16%, transparent); }
+.menu-item .mn { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-item .st { font-size: .72em; color: var(--suave); margin-left: auto; }
+.linha-aj input[type=text] { flex: 1; min-width: 5em; background: var(--campo); border: 1px solid var(--linha); border-radius: var(--r); padding: .2em .55em; color: var(--tinta); }
 </style>
 </head>
 <body>
 
+<!-- ilustrações delicadas (traço fino) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="folha-m" viewBox="-6 -24 12 26"><path d="M0 0 C-5-7 -5-15 0-22 C5-15 5-7 0 0Z" fill="currentColor" fill-opacity=".16" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M0 0 V-18" stroke="currentColor" stroke-width=".8" fill="none"/></symbol>
+    <symbol id="planta" viewBox="0 0 100 70" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 66 C26 55 52 46 93 10"/>
+      <g transform="translate(22 58) rotate(-62)"><path d="M0 0 C-5-7 -5-15 0-22 C5-15 5-7 0 0Z" fill="currentColor" fill-opacity=".16"/><path d="M0 0 V-18" stroke-width=".8"/></g>
+      <g transform="translate(30 54) rotate(30)"><path d="M0 0 C-5-7 -5-15 0-22 C5-15 5-7 0 0Z" fill="currentColor" fill-opacity=".16"/><path d="M0 0 V-18" stroke-width=".8"/></g>
+      <g transform="translate(46 47) rotate(-65)"><path d="M0 0 C-5-7 -5-15 0-22 C5-15 5-7 0 0Z" fill="currentColor" fill-opacity=".16"/><path d="M0 0 V-18" stroke-width=".8"/></g>
+      <g transform="translate(56 40) rotate(28)"><path d="M0 0 C-5-7 -5-15 0-22 C5-15 5-7 0 0Z" fill="currentColor" fill-opacity=".16"/><path d="M0 0 V-18" stroke-width=".8"/></g>
+      <g transform="translate(72 29) rotate(-62)"><path d="M0 0 C-5-7 -5-15 0-22 C5-15 5-7 0 0Z" fill="currentColor" fill-opacity=".16"/><path d="M0 0 V-18" stroke-width=".8"/></g>
+      <g transform="translate(80 22) rotate(30)"><path d="M0 0 C-5-7 -5-15 0-22 C5-15 5-7 0 0Z" fill="currentColor" fill-opacity=".16"/><path d="M0 0 V-18" stroke-width=".8"/></g>
+      <g transform="translate(93 10) rotate(10)"><path d="M0 0 C-5-7 -5-15 0-22 C5-15 5-7 0 0Z" fill="currentColor" fill-opacity=".16"/></g>
+    </symbol>
+    <symbol id="coruja" viewBox="0 0 90 90" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M45 80 C22 80 14 60 18 40 C19 30 24 24 28 20 L27 8 L38 16 C42 15 48 15 52 16 L63 8 L62 20 C66 24 71 30 72 40 C76 60 68 80 45 80Z" fill="currentColor" fill-opacity=".12"/>
+      <circle cx="33" cy="38" r="9"/><circle cx="57" cy="38" r="9"/>
+      <circle cx="33" cy="38" r="3.2" fill="currentColor"/><circle cx="57" cy="38" r="3.2" fill="currentColor"/>
+      <path d="M45 44 L41 52 L49 52Z" fill="currentColor" fill-opacity=".3"/>
+      <path d="M35 62 q4 4 8 0 M47 62 q4 4 8 0 M41 69 q4 4 8 0"/>
+      <path d="M8 84 H82"/>
+    </symbol>
+    <symbol id="cao" viewBox="0 0 90 90" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M25 30 C25 18 35 12 45 12 C55 12 65 18 65 30 L65 50 C65 64 56 74 45 74 C34 74 25 64 25 50Z" fill="currentColor" fill-opacity=".10"/>
+      <path d="M25 26 C11 24 6 44 13 58 C20 60 26 53 26 44" fill="currentColor" fill-opacity=".22"/>
+      <path d="M65 26 C79 24 84 44 77 58 C70 60 64 53 64 44" fill="currentColor" fill-opacity=".22"/>
+      <circle cx="37" cy="40" r="2.6" fill="currentColor"/><circle cx="53" cy="40" r="2.6" fill="currentColor"/>
+      <ellipse cx="45" cy="54" rx="5.5" ry="3.6" fill="currentColor"/>
+      <path d="M45 58 V62 M45 62 q-5 5 -9 1 M45 62 q5 5 9 1"/>
+      <path d="M43 65 q2 9 5 0" fill="currentColor" fill-opacity=".3"/>
+    </symbol>
+    <symbol id="mini-pata" viewBox="0 0 20 20" fill="currentColor"><path d="M10 10.5 c-3.2 0-5.6 2.2-5.6 4.2 s2.2 3 5.6 3 5.6-1 5.6-3 -2.4-4.2-5.6-4.2z"/><circle cx="3.6" cy="8" r="2"/><circle cx="7.6" cy="4.2" r="2"/><circle cx="12.4" cy="4.2" r="2"/><circle cx="16.4" cy="8" r="2"/></symbol>
+    <symbol id="mini-pena" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18 C5 8 11 3 17 2 C17 9 12 15 3 18Z" fill="currentColor" fill-opacity=".2"/><path d="M3 18 L14 6"/></symbol>
+  </defs>
+</svg>
+
 <div id="host">
-  <div class="nota" id="app">
+  <div class="folha" id="app">
     <div class="topo drag">
       <div class="saudacao"><h1 class="tit" id="saudacao"></h1><div class="sub" id="subtitulo"></div></div>
+      <svg class="ilu" viewBox="0 0 100 70" aria-hidden="true"><use id="iluUse" href="#planta"/></svg>
       <div class="ctrl">
-        <button class="btn" id="btnFixar" title="Manter sempre por cima das outras janelas">📌</button>
-        <button class="btn so-app" id="btnMin" title="Minimizar">—</button>
-        <button class="btn so-app" id="btnFechar" title="Fechar">✕</button>
+        <button class="ico" id="btnMenu" title="Minhas folhas: abrir, criar e excluir">☰</button>
+        <button class="ico" id="btnConfig" title="Ajustes: tamanho, cores e temas">⚙</button>
+        <button class="ico so-app" id="btnFixar" title="Manter sempre por cima das outras janelas">📌</button>
+        <button class="ico so-app" id="btnMin" title="Minimizar">–</button>
+        <button class="ico so-app" id="btnFechar" title="Fechar">✕</button>
       </div>
     </div>
 
-    <div class="semana"><div class="barra"><span id="barraFill"></span></div><div class="semana-txt" id="semanaTxt"></div></div>
-    <div class="dias" id="dias" role="tablist"></div>
-    <div class="resumo" id="resumoBox"><span id="resumo"></span><button class="limpar" id="btnLimpar" hidden>Limpar concluídas</button></div>
+    <div class="menu" id="menu" hidden></div>
 
-    <div class="form">
-      <div class="linha-add">
-        <input class="titulo" id="fTitulo" type="text" placeholder="＋ Adicionar uma tarefa" autocomplete="off">
-        <button class="btn btn--forte" id="btnAdd" title="Adicionar (Enter)">↵</button>
+    <div class="corpo" id="corpo">
+      <div class="painel" id="painel" hidden>
+        <div class="linha-aj"><span>Nome</span><input type="text" id="rNome" maxlength="28" placeholder="Nome da folha"></div>
+        <div class="linha-aj"><span>Tamanho</span><input type="range" id="rEsc" min="70" max="160" step="5"><b id="vEsc"></b></div>
+        <div class="linha-aj"><span>Papel</span><div class="opts" id="swPapel"></div></div>
+        <div class="linha-aj"><span>Tema</span><div class="opts" id="optDecor"></div></div>
+        <div class="linha-aj"><span>Cantos</span><div class="opts" id="optCantos"></div></div>
+        <div class="linha-aj"><span>Letra</span><div class="opts" id="optFonte"></div></div>
+        <div class="prog-txt">Dica: Ctrl + roda do mouse (ou Ctrl + / Ctrl −) muda o tamanho. Arraste as bordas da janela para ajustar a largura e a altura.</div>
       </div>
-      <div class="cats" id="cats"></div>
-      <input id="fDur" type="text" placeholder="⏱ Tempo (opcional)" title="Ex.: 2h, 1h30, 45min. Deixe vazio para um item simples de checklist" autocomplete="off">
-      <input id="fHora" type="time" title="Horário de início (opcional)">
-      <select id="fDia" title="Dia"></select>
-    </div>
 
-    <div class="lista" id="lista"></div>
-    <p class="aviso" id="aviso">Dica: clique duas vezes numa tarefa para editar o texto.</p>
-    <div class="upd" id="upd"><span id="updTxt"></span><button class="btn btn--forte" id="btnUpd">Reiniciar e atualizar</button></div>
-    <label class="rodape-app"><input type="checkbox" id="chkAuto"> Abrir automaticamente ao ligar o computador</label>
-    <div class="ver"><span id="ver"></span> · <button class="limpar" id="btnChecar">Verificar atualizações</button> <span id="chkMsg"></span></div>
+      <div class="progresso"><div class="barra"><span id="barraFill"></span></div><div class="prog-txt" id="progTxt"></div></div>
+      <div class="abas" id="abas" role="tablist"></div>
+
+      <div class="form">
+        <div class="linha-add">
+          <input id="fTitulo" type="text" placeholder="＋ Escreva uma tarefa…" autocomplete="off">
+          <button class="btn" id="btnAdd" title="Adicionar (Enter)">Adicionar</button>
+        </div>
+        <div class="cats so-tar" id="cats"></div>
+        <div class="datas">
+          <label><span id="lblIni">Início</span><input id="fIni" type="date"></label>
+          <label class="so-tar">Fim<input id="fFim" type="date"></label>
+          <label class="so-lemb">Hora<input id="fHora" type="time"></label>
+        </div>
+      </div>
+
+      <div class="resumo-linha"><span id="resumo"></span><button class="limpar" id="btnLimpar" hidden>Limpar concluídas</button></div>
+      <div class="lista" id="lista"></div>
+
+      <textarea class="recado" id="recado" placeholder="Escreva seu recado aqui…" spellcheck="true"></textarea>
+
+      <div class="rodape">
+        <p class="aviso" id="aviso">Dica: clique em ✎ (ou duas vezes no texto) para editar uma tarefa.</p>
+        <div class="upd" id="upd"><span id="updTxt"></span><button class="btn" id="btnUpd">Reiniciar e atualizar</button></div>
+        <label class="rodape-app"><input type="checkbox" id="chkAuto"> Abrir automaticamente ao ligar o computador</label>
+        <div class="ver"><span id="ver"></span> · <button class="limpar" id="btnChecar">Verificar atualizações</button> <span id="chkMsg"></span></div>
+        <div class="base-deco" id="baseDeco"><svg viewBox="0 0 20 20"><use id="mini1" href="#mini-folha"/></svg><svg viewBox="0 0 20 20" style="transform:rotate(-20deg)"><use id="mini2" href="#mini-folha"/></svg><svg viewBox="0 0 20 20" style="transform:rotate(15deg)"><use id="mini3" href="#mini-folha"/></svg></div>
+      </div>
+    </div>
   </div>
 </div>
 <div class="fixado-msg" id="fixadoMsg" hidden>📌 O post-it está na janela flutuante.<br>Feche-a para trazê-lo de volta aqui.</div>
 
 <script>
 (function () {
-  const DIAS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-  const ABAS = [0,1,2,3,4,5,6]; // Geral + Seg a Sáb
-  const NOME = (d) => d === 0 ? 'Geral' : DIAS[d];
-  const KEY = 'postit-demandas-v1';
-  const app = document.getElementById('app');
   const $ = (id) => document.getElementById(id);
-
+  const app = $('app');
+  const IDX = 'postit-indice', OLD = 'postit-demandas-v1';
+  const FK = (id) => 'postit-folha-' + id;
+  const App = window.postit || null;
   const USUARIA = 'Gessyca';
-  const AREA = 'Núcleo de Orçamentos';
-  // Categorias (edite aqui se quiser outras)
+  const TIPOS = {
+    tarefas:   { nome: 'Tarefas',   icone: '✅', papel: 'creme' },
+    recados:   { nome: 'Recados',   icone: '📝', papel: 'pessego' },
+    lembretes: { nome: 'Lembretes', icone: '🔔', papel: 'rosa' }
+  };
   const CATS = [['Orçamento','--c1'],['Zeev','--c2'],['Reunião','--c3'],['Planejamento','--c4'],['Análise','--c5'],['Outros','--c6']];
   const corCat = (n) => (CATS.find(c => c[0] === n) || [])[1];
-  let catSel = null;
-  const hoje = new Date().getDay();
-  let state = carregar();
-  let pipWin = null;
+  const PAPEIS = [['creme','#FFFDF6','Creme'],['rosa','#FFE3E8','Rosa'],['lavanda','#E9E0FA','Lavanda'],['menta','#DDF3E6','Menta'],['pessego','#FFE6D2','Pêssego'],['ceu','#DCEEFC','Céu'],['noite','#2C303C','Noite']];
+  const DECORS = [['nenhum','Nenhum'],['plantas','🌿 Plantas'],['corujas','🦉 Corujas'],['cachorros','🐶 Cachorros']];
+  const ILU = { plantas: ['#planta', '#folha-m', '#folha-m', '#folha-m'], corujas: ['#coruja', '#mini-pena', '#mini-pena', '#mini-pena'], cachorros: ['#cao', '#mini-pata', '#mini-pata', '#mini-pata'] };
+  const CANTOS = [['reto','Retos'],['suave','Suaves'],['redondo','Bem redondos']];
+  const FONTES = [['manuscrita','Manuscrita'],['normal','Normal']];
 
-  function novo() { return { tarefas: [], dia: (hoje >= 1 && hoje <= 6) ? hoje : 1, seq: 1 }; }
-  function carregar() {
-    try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && Array.isArray(s.tarefas)) return s; } catch (e) {}
-    return novo();
-  }
-  function salvar() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  // ---------- datas ----------
+  const toISO = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  const hojeISO = () => toISO(new Date());
+  const nowHM = () => { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+  const addDias = (iso, n) => { const d = new Date(iso + 'T12:00:00'); d.setDate(d.getDate() + n); return toISO(d); };
+  const segundaISO = () => { const d = new Date(); return addDias(toISO(d), -((d.getDay() + 6) % 7)); };
+  const fmtData = (iso) => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) : '';
+  const diasEntre = (a, b) => Math.round((new Date(b + 'T12:00:00') - new Date(a + 'T12:00:00')) / 86400000);
+  const ordenaDatas = (ini, fim) => (ini && fim && fim < ini) ? [fim, ini] : [ini, fim];
+  const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  // ---------- utilidades ----------
-  function esc(s) { return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-  function parseDur(txt) {
-    const m = String(txt).trim().toLowerCase().replace(',', '.')
-      .match(/^(?:(\d+(?:\.\d+)?)\s*h(?:oras?)?)?\s*(?:(\d+)\s*(?:m|min|minutos?)?)?$/);
-    if (!m || (!m[1] && !m[2])) return null;
-    const s = Math.round((parseFloat(m[1] || 0) * 3600) + (parseInt(m[2] || 0, 10) * 60));
-    return s > 0 ? s : null;
+  // ---------- armazenamento (uma chave por folha + um índice) ----------
+  const lerJ = (k) => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+  const gravarJ = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const lerIndice = () => { const i = lerJ(IDX); return Array.isArray(i) ? i : []; };
+  const cfgPadrao = () => ({ escala: 100, papel: 'creme', decor: 'plantas', cantos: 'suave', fonte: 'manuscrita' });
+  function migrar(s) {            // dados das versões anteriores
+    if (s && s.v === 2) { s.cfg = Object.assign(cfgPadrao(), s.cfg || {}); return s; }
+    const base = segundaISO();
+    const tarefas = ((s && s.tarefas) || []).map(t => {
+      let ini = '', fim = '';
+      if (t.dia >= 1 && t.dia <= 6) ini = fim = addDias(base, t.dia - 1);
+      return { id: t.id, titulo: t.titulo, cat: t.cat || null, ini, fim, feito: !!t.feito };
+    });
+    return { v: 2, tarefas, seq: (s && s.seq) || (tarefas.reduce((m, t) => Math.max(m, t.id), 0) + 1), filtro: 'hoje', cfg: cfgPadrao() };
   }
-  function fmt(sec) {
-    sec = Math.abs(Math.round(sec));
-    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
-    const p = (n) => String(n).padStart(2, '0');
-    return h > 0 ? `${h}:${p(m)}:${p(s)}` : `${p(m)}:${p(s)}`;
+  function novaFolha(tipo) {
+    const id = 'f' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    const F = { id, tipo, nome: TIPOS[tipo].nome, cfg: Object.assign(cfgPadrao(), { papel: TIPOS[tipo].papel }), tarefas: [], seq: 1, filtro: 'hoje', texto: '' };
+    gravarJ(FK(id), F);
+    const ix = lerIndice(); ix.push({ id, tipo, nome: F.nome }); gravarJ(IDX, ix);
+    return F;
   }
-  function fmtPlan(sec) {
-    const h = Math.floor(sec / 3600), m = Math.round((sec % 3600) / 60);
-    if (h && m) return `${h}h${String(m).padStart(2, '0')}`;
-    return h ? `${h}h` : `${m}min`;
-  }
-  function restante(t) { return t.rodando ? t.rest - (Date.now() - t.desde) / 1000 : t.rest; }
-
-  // ---------- alarme ----------
-  let audioCtx = null, tituloOriginal = document.title, piscaId = null;
-  function bip() {
-    try {
-      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      [0, 0.35, 0.7].forEach(d => {
-        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-        o.frequency.value = 880; o.connect(g); g.connect(audioCtx.destination);
-        const t0 = audioCtx.currentTime + d;
-        g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(0.25, t0 + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.28);
-        o.start(t0); o.stop(t0 + 0.3);
-      });
-    } catch (e) {}
-  }
-  function alarme(t) {
-    bip();
-    try { if ('Notification' in window && Notification.permission === 'granted') new Notification('Tempo esgotado', { body: t.titulo }); } catch (e) {}
-    if (!piscaId) {
-      let on = false;
-      piscaId = setInterval(() => { document.title = (on = !on) ? '⏰ Tempo esgotado!' : tituloOriginal; }, 900);
-      const parar = () => { clearInterval(piscaId); piscaId = null; document.title = tituloOriginal; };
-      window.addEventListener('focus', parar, { once: true });
-      setTimeout(parar, 30000);
+  function iniciarFolha() {
+    let ix = lerIndice();
+    if (!ix.length) {              // primeira vez: traz o que já existia para a folha "Tarefas"
+      const antigo = lerJ(OLD);
+      const b = migrar(antigo && Array.isArray(antigo.tarefas) ? antigo : { tarefas: [] });
+      gravarJ(FK('f1'), { id: 'f1', tipo: 'tarefas', nome: 'Tarefas', cfg: b.cfg, tarefas: b.tarefas, seq: b.seq, filtro: b.filtro || 'hoje', texto: '' });
+      ix = [{ id: 'f1', tipo: 'tarefas', nome: 'Tarefas' }]; gravarJ(IDX, ix);
     }
+    let id = new URLSearchParams(location.search).get('folha');
+    if (!id || !lerJ(FK(id))) id = ix[0].id;
+    const F = lerJ(FK(id));
+    F.cfg = Object.assign(cfgPadrao(), F.cfg || {});
+    F.tarefas = F.tarefas || []; F.seq = F.seq || 1; F.texto = F.texto || '';
+    return F;
+  }
+  const F = iniciarFolha();
+  const tipo = F.tipo;
+  const state = F;
+  const salvar = () => gravarJ(FK(F.id), F);
+  function syncIndice() { const ix = lerIndice(); const i = ix.find(x => x.id === F.id); if (i && i.nome !== F.nome) { i.nome = F.nome; gravarJ(IDX, ix); } }
+  const FILTROS = tipo === 'lembretes'
+    ? [['hoje','Hoje'],['proximos','Próximos'],['tudo','Todos'],['feitas','Feitos']]
+    : [['hoje','Hoje'],['semana','Semana'],['tudo','Tudo'],['feitas','Feitas']];
+  if (!FILTROS.some(f => f[0] === state.filtro)) state.filtro = 'hoje';
+  document.body.dataset.tipo = tipo;
+  let catSel = null, editId = null, editCat = null;
+
+  // ---------- aparência ----------
+  function aplicarCfg() {
+    const c = state.cfg, r = document.documentElement;
+    r.style.setProperty('--esc', c.escala / 100);
+    r.dataset.papel = c.papel; r.dataset.cantos = c.cantos; r.dataset.fonte = c.fonte; r.dataset.decor = c.decor;
+    const il = ILU[c.decor] || ILU.plantas;
+    $('iluUse').setAttribute('href', il[0]);
+    ['mini1', 'mini2', 'mini3'].forEach((id, i) => $(id).setAttribute('href', il[i + 1]));
+    $('rEsc').value = c.escala; $('vEsc').textContent = c.escala + '%';
+    $('swPapel').innerHTML = PAPEIS.map(([k, cor, nome]) => `<button class="sw" data-cfg="papel:${k}" title="${nome}" style="background:${cor}" aria-pressed="${c.papel === k}"></button>`).join('');
+    const opts = (lista, chave) => lista.map(([k, nome]) => `<button class="opt" data-cfg="${chave}:${k}" aria-pressed="${c[chave] === k}">${nome}</button>`).join('');
+    $('optDecor').innerHTML = opts(DECORS, 'decor');
+    $('optCantos').innerHTML = opts(CANTOS, 'cantos');
+    $('optFonte').innerHTML = opts(FONTES, 'fonte');
+  }
+  function setEscala(v) { state.cfg.escala = Math.max(70, Math.min(160, Math.round(v))); salvar(); aplicarCfg(); }
+
+  // ---------- regras de exibição ----------
+  function atrasada(t) {
+    if (t.feito || !t.fim) return false;
+    if (tipo === 'lembretes') return t.fim < hojeISO() || (t.fim === hojeISO() && !!t.hora && t.hora < nowHM());
+    return t.fim < hojeISO();
+  }
+  function visivel(t, f) {
+    const h = hojeISO(), s0 = segundaISO(), s1 = addDias(s0, 6);
+    if (f === 'feitas') return t.feito;
+    if (t.feito) return false;
+    if (f === 'tudo') return true;
+    if (tipo === 'lembretes') {
+      if (f === 'hoje') return !t.fim || t.fim <= h;
+      if (f === 'proximos') return !!t.fim && t.fim > h;
+      return true;
+    }
+    if (atrasada(t)) return true;
+    if (f === 'hoje') return (!t.ini || t.ini <= h) && (!t.fim || t.fim >= h);
+    if (f === 'semana') return (!t.ini || t.ini <= s1) && (!t.fim || t.fim >= s0);
+    return true;
+  }
+  function ordenar(a, b) {
+    if (tipo === 'lembretes') { const ka = (a.fim || '9999') + (a.hora || '99:99'), kb = (b.fim || '9999') + (b.hora || '99:99'); return ka < kb ? -1 : ka > kb ? 1 : a.id - b.id; }
+    const ga = atrasada(a) ? 0 : (a.ini || a.fim) ? 1 : 2, gb = atrasada(b) ? 0 : (b.ini || b.fim) ? 1 : 2;
+    const ka = a.fim || a.ini || '9999', kb = b.fim || b.ini || '9999';
+    return (ga - gb) || (ka < kb ? -1 : ka > kb ? 1 : 0) || (a.id - b.id);
+  }
+  function textoDatas(t) {
+    if (tipo === 'lembretes') return (t.fim || t.hora) ? '🔔 ' + [fmtData(t.fim), t.hora].filter(Boolean).join(' ') : '';
+    if (t.ini && t.fim) return t.ini === t.fim ? '📅 ' + fmtData(t.ini) : '📅 ' + fmtData(t.ini) + ' → ' + fmtData(t.fim);
+    if (t.ini) return '📅 desde ' + fmtData(t.ini);
+    if (t.fim) return '📅 até ' + fmtData(t.fim);
+    return '';
   }
 
   // ---------- render ----------
-  function renderAbas() {
-    $('dias').innerHTML = ABAS.map(d => {
-      const n = state.tarefas.filter(t => t.dia === d && !t.feito).length;
-      return `<button class="dia ${d === hoje && d !== 0 ? 'hoje' : ''}" role="tab" data-dia="${d}" aria-selected="${d === state.dia}">${NOME(d)}${n ? `<span class="n">${n}</span>` : ''}</button>`;
-    }).join('');
-    $('fDia').innerHTML = ABAS.map(d => `<option value="${d}" ${d === state.dia ? 'selected' : ''}>${NOME(d)}</option>`).join('');
-  }
-  function renderLista() {
-    const lista = state.tarefas.filter(t => t.dia === state.dia).sort((a, b) =>
-      (a.feito - b.feito) || ((a.hora || '99:99') < (b.hora || '99:99') ? -1 : (a.hora || '99:99') > (b.hora || '99:99') ? 1 : 0) || (a.id - b.id));
-    const pend = lista.filter(t => !t.feito);
-    const plan = pend.reduce((s, t) => s + t.dur, 0);
-    $('resumo').textContent = lista.length
-      ? `${pend.length} pendente${pend.length === 1 ? '' : 's'}${plan ? ' · ' + fmtPlan(plan) + ' planejadas' : ''}`
-      : '';
-    $('btnLimpar').hidden = !lista.some(t => t.feito);
-    $('lista').innerHTML = lista.length ? lista.map(t => {
-      const temTempo = t.dur > 0;
-      const rem = restante(t), esg = temTempo && rem <= 0 && !t.feito;
-      const cls = ['tarefa', temTempo ? '' : 'simples', t.rodando ? 'rodando' : '', esg ? 'esgotado' : '', t.feito ? 'feito' : ''].join(' ');
-      return `<div class="${cls}" data-id="${t.id}">
-        <div class="linha1">
-          <input type="checkbox" data-act="feito" ${t.feito ? 'checked' : ''} aria-label="Concluída">
-          <div class="nome-box"><div class="nome">${esc(t.titulo)}</div>${t.cat && corCat(t.cat) ? `<span class="cat" style="--c:var(${corCat(t.cat)})">${esc(t.cat)}</span>` : ''}</div>
-          <div class="hora">${t.hora ? '🕐 ' + t.hora : ''}${t.hora && temTempo ? ' · ' : ''}${temTempo ? fmtPlan(t.dur) : ''}</div>
-          ${temTempo ? '' : '<button class="mini" data-act="excluir" title="Excluir">✕</button>'}
-        </div>
-        ${!temTempo ? '' : `<div class="linha2">
-          <div class="tempo" data-tempo>${esg ? '+' : ''}${fmt(rem)}</div>
-          <div class="status" data-status>${statusTxt(t, rem)}</div>
-          ${t.feito ? '' : `<button class="mini play" data-act="${t.rodando ? 'pausar' : 'iniciar'}" title="${t.rodando ? 'Pausar' : 'Iniciar'}">${t.rodando ? '⏸' : '▶'}</button>
-          <button class="mini" data-act="mais" title="Adicionar 15 minutos">+15</button>
-          <button class="mini" data-act="zerar" title="Reiniciar cronômetro">↺</button>`}
-          <button class="mini" data-act="excluir" title="Excluir">✕</button>
-        </div>`}
-      </div>`;
-    }).join('') : `<div class="vazio">Nada por aqui ainda em ${NOME(state.dia)}.<br>Escreva acima e aperte Enter ☝️</div>`;
-  }
-  function statusTxt(t, rem) {
-    if (t.feito) return 'Concluída';
-    if (rem <= 0) return 'Tempo esgotado';
-    return t.rodando ? 'Em andamento' : (rem < t.dur ? 'Pausada' : '');
-  }
   function renderTopo() {
     const hr = new Date().getHours();
     const sauda = hr < 12 ? 'Bom dia' : hr < 18 ? 'Boa tarde' : 'Boa noite';
     let data = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
     data = data.charAt(0).toUpperCase() + data.slice(1);
-    $('saudacao').textContent = `${sauda}, ${USUARIA}`;
-    $('subtitulo').textContent = `${AREA} · ${data}`;
+    $('saudacao').textContent = F.nome;
+    $('subtitulo').textContent = `${sauda}, ${USUARIA} · ${data}`;
+    document.title = F.nome + ' · Post-it';
     const tot = state.tarefas.length, ok = state.tarefas.filter(t => t.feito).length;
-    const plan = state.tarefas.filter(t => !t.feito).reduce((s, t) => s + t.dur, 0);
     $('barraFill').style.width = (tot ? Math.round(ok / tot * 100) : 0) + '%';
-    $('semanaTxt').textContent = tot ? `Semana: ${ok} de ${tot} concluídas${plan ? ' · ' + fmtPlan(plan) + ' a fazer' : ''}` : 'Semana: nenhuma tarefa ainda';
+    const un = tipo === 'lembretes' ? 'concluídos' : 'concluídas';
+    $('progTxt').textContent = tot ? `${ok} de ${tot} ${un}` : (tipo === 'lembretes' ? 'Nenhum lembrete ainda' : 'Nenhuma tarefa ainda');
+  }
+  function renderAbas() {
+    $('abas').innerHTML = FILTROS.map(([k, nome]) => {
+      const n = state.tarefas.filter(t => visivel(t, k)).length;
+      return `<button class="aba" role="tab" data-filtro="${k}" aria-selected="${k === state.filtro}">${nome}${n ? `<span class="n">${n}</span>` : ''}</button>`;
+    }).join('');
   }
   function renderCats() {
     $('cats').innerHTML = CATS.map(([n, c]) => `<button class="chip" style="--c:var(${c})" data-cat="${n}" aria-pressed="${catSel === n}">${n}</button>`).join('');
   }
+  function linhaTarefa(t) {
+    if (t.id === editId) {
+      const lemb = tipo === 'lembretes';
+      return `<div class="tarefa editando" data-id="${t.id}">
+        <input class="e-titulo" type="text" value="${esc(t.titulo)}" autocomplete="off">
+        ${lemb ? '' : `<div class="e-cats">${CATS.map(([n, c]) => `<button class="chip" style="--c:var(${c})" data-ecat="${n}" aria-pressed="${editCat === n}">${n}</button>`).join('')}</div>`}
+        <div class="e-datas"><label>${lemb ? 'Data' : 'Início'}<input class="e-ini" type="date" value="${(lemb ? t.fim : t.ini) || ''}"></label>
+          ${lemb ? `<label>Hora<input class="e-hora" type="time" value="${t.hora || ''}"></label>` : `<label>Fim<input class="e-fim" type="date" value="${t.fim || ''}"></label>`}</div>
+        <div class="e-botoes"><button class="btn" data-act="salvar">Salvar</button><button class="btn suave" data-act="cancelar">Cancelar</button><button class="btn suave" data-act="excluir">Excluir</button></div>
+      </div>`;
+    }
+    const atr = atrasada(t), lemb = tipo === 'lembretes';
+    const dt = textoDatas(t);
+    const pill = !lemb && t.cat && corCat(t.cat) ? `<span class="cat" style="--c:var(${corCat(t.cat)})">${esc(t.cat)}</span>` : '';
+    let aviso = '';
+    if (atr) { const dias = diasEntre(t.fim, hojeISO()); aviso = `<span class="atraso">${lemb ? 'atrasado' : 'atrasada ' + dias + ' dia' + (dias === 1 ? '' : 's')}</span>`; }
+    else if (!t.feito && t.fim === hojeISO()) aviso = `<span class="atraso" style="opacity:.8">${lemb ? 'hoje' : 'termina hoje'}</span>`;
+    return `<div class="tarefa ${t.feito ? 'feito' : ''}" data-id="${t.id}">
+      <input type="checkbox" class="bola" data-act="feito" ${t.feito ? 'checked' : ''} aria-label="Concluído">
+      <div class="miolo"><div class="nome">${esc(t.titulo)}</div>${(pill || dt || aviso) ? `<div class="meta">${pill}${dt ? `<span>${dt}</span>` : ''}${aviso}</div>` : ''}</div>
+      <button class="mini" data-act="editar" title="Editar">✎</button>
+      <button class="mini" data-act="excluir" title="Excluir">✕</button>
+    </div>`;
+  }
+  function renderLista() {
+    const f = state.filtro, lemb = tipo === 'lembretes';
+    const lista = state.tarefas.filter(t => visivel(t, f)).sort(f === 'feitas' ? ((a, b) => b.id - a.id) : ordenar);
+    const feitas = f === 'feitas';
+    $('resumo').textContent = lista.length ? `${lista.length} ${feitas ? (lemb ? 'concluído' : 'concluída') : 'pendente'}${lista.length === 1 ? '' : 's'}` : '';
+    $('btnLimpar').hidden = !(feitas && lista.length);
+    const vazios = lemb
+      ? { hoje: 'Nenhum lembrete para hoje. 🔔', proximos: 'Nenhum lembrete futuro.', tudo: 'Escreva acima e aperte Enter ☝️', feitas: 'Nenhum lembrete concluído ainda.' }
+      : { hoje: 'Nada para hoje por aqui. 🌿', semana: 'Nada planejado para esta semana.', tudo: 'Escreva acima e aperte Enter ☝️', feitas: 'Nenhuma tarefa concluída ainda.' };
+    $('lista').innerHTML = lista.length ? lista.map(linhaTarefa).join('') : `<div class="vazio">${vazios[f]}</div>`;
+  }
   function render() { renderTopo(); renderAbas(); renderLista(); renderCats(); }
 
-  // ---------- cronômetro (atualiza só os textos, sem recriar a lista) ----------
-  setInterval(() => {
-    let precisaRender = false;
-    state.tarefas.forEach(t => {
-      if (!t.rodando || t.feito) return;
-      const rem = restante(t);
-      if (rem <= 0 && !t.alertado) { t.alertado = true; salvar(); alarme(t); precisaRender = true; }
-      const el = app.querySelector(`.tarefa[data-id="${t.id}"]`);
-      if (el && !precisaRender) {
-        el.querySelector('[data-tempo]').textContent = (rem <= 0 ? '+' : '') + fmt(rem);
-      }
-    });
-    if (precisaRender) renderLista();
-  }, 1000);
-
-  // ---------- ações ----------
+  // ---------- ações (tarefas e lembretes) ----------
   function adicionar() {
     const titulo = $('fTitulo').value.trim();
-    const durTxt = $('fDur').value.trim();
-    const dur = durTxt ? parseDur(durTxt) : 0;
     if (!titulo) { $('fTitulo').focus(); return; }
-    if (durTxt && !dur) { $('aviso').textContent = 'Tempo inválido. Use, por exemplo: 2h, 1h30 ou 45min (ou deixe vazio).'; $('fDur').focus(); return; }
-    $('aviso').textContent = '';
-    state.tarefas.push({ id: state.seq++, titulo, dur, rest: dur, rodando: false, desde: 0, feito: false, alertado: false,
-      dia: parseInt($('fDia').value, 10), hora: $('fHora').value || '', cat: catSel });
-    state.dia = parseInt($('fDia').value, 10);
-    $('fTitulo').value = ''; $('fDur').value = ''; $('fHora').value = '';
-    salvar(); render(); $('fTitulo').focus();
+    let t;
+    if (tipo === 'lembretes') {
+      const d = $('fIni').value;
+      t = { id: state.seq++, titulo, cat: null, ini: d, fim: d, hora: $('fHora').value || '', feito: false, avisado: false };
+      $('fHora').value = '';
+    } else {
+      const [ini, fim] = ordenaDatas($('fIni').value, $('fFim').value);
+      t = { id: state.seq++, titulo, cat: catSel, ini, fim, feito: false };
+      $('fFim').value = hojeISO();
+    }
+    state.tarefas.push(t);
+    $('aviso').textContent = visivel(t, state.filtro) ? '' : 'Adicionado! Ainda não está na lista de hoje: veja em "' + FILTROS[1][1] + '" ou "' + FILTROS[2][1] + '".';
+    $('fTitulo').value = ''; $('fIni').value = hojeISO();
+    salvar(); render(); $('fTitulo').focus(); checarLembretes();
   }
-  app.addEventListener('click', (e) => {
-    const chip = e.target.closest('[data-cat]');
+  function salvarEdicao(card) {
+    const t = state.tarefas.find(x => x.id === +card.dataset.id); if (!t) return;
+    const titulo = card.querySelector('.e-titulo').value.trim();
+    if (!titulo) { card.querySelector('.e-titulo').focus(); return; }
+    if (tipo === 'lembretes') {
+      const d = card.querySelector('.e-ini').value, h = card.querySelector('.e-hora').value;
+      if (d !== t.fim || h !== (t.hora || '')) t.avisado = false;
+      Object.assign(t, { titulo, ini: d, fim: d, hora: h });
+    } else {
+      const [ini, fim] = ordenaDatas(card.querySelector('.e-ini').value, card.querySelector('.e-fim').value);
+      Object.assign(t, { titulo, ini, fim, cat: editCat });
+    }
+    editId = null; salvar(); render(); checarLembretes();
+  }
+  function abrirEdicao(id) {
+    const t = state.tarefas.find(x => x.id === id); if (!t) return;
+    editId = id; editCat = t.cat || null; renderLista();
+    const el = app.querySelector('.e-titulo'); if (el) { el.focus(); el.setSelectionRange(el.value.length, el.value.length); }
+  }
+
+  // ---------- lembretes: aviso na hora marcada ----------
+  function notificar(titulo, corpo) {
+    if (App) App.notificar(titulo, corpo);
+    else { try { if ('Notification' in window) { if (Notification.permission === 'default') Notification.requestPermission(); if (Notification.permission === 'granted') new Notification(titulo, { body: corpo }); } } catch (e) {} }
+  }
+  function checarLembretes() {
+    if (tipo !== 'lembretes') return;
+    const h = hojeISO(), agora = nowHM(); let mudou = false;
+    state.tarefas.forEach(t => {
+      if (t.feito || t.avisado || !t.hora || !t.fim) return;
+      if (t.fim < h || (t.fim === h && t.hora <= agora)) { t.avisado = true; mudou = true; notificar('Lembrete', t.titulo + ' (' + t.hora + ')'); }
+    });
+    if (mudou) { salvar(); render(); }
+  }
+  setInterval(checarLembretes, 20000);
+
+  // ---------- menu "Minhas folhas" ----------
+  async function renderMenu() {
+    const ix = lerIndice();
+    const abertas = App ? await App.abertas() : [F.id];
+    $('menu').innerHTML = '<h4>Minhas folhas</h4>' + ix.map(i => `<div class="menu-linha"><button class="menu-item" data-abrir="${i.id}">${(TIPOS[i.tipo] || {}).icone || '📄'} <span class="mn">${esc(i.nome)}</span><span class="st">${i.id === F.id ? 'esta' : abertas.includes(i.id) ? 'aberta' : 'fechada'}</span></button><button class="mini" data-excluir="${i.id}" title="Excluir folha">✕</button></div>`).join('')
+      + '<hr><h4>Nova folha</h4>'
+      + Object.keys(TIPOS).map(k => `<button class="menu-item" data-nova="${k}">${TIPOS[k].icone} ${TIPOS[k].nome}</button>`).join('')
+      + (App ? '<hr><button class="menu-item" data-sair="1">⏻ Sair do programa</button>' : '');
+  }
+  async function criarEAbrir(t) {
+    const N = novaFolha(t);
+    if (App) await App.abrirFolha(N.id);
+    else window.open(location.pathname + '?folha=' + N.id, '_blank', 'width=420,height=680');
+    $('menu').hidden = true;
+  }
+  async function excluirFolha(id) {
+    const ix = lerIndice();
+    if (ix.length <= 1) { alert('Mantenha pelo menos uma folha.'); return; }
+    const alvo = ix.find(i => i.id === id); if (!alvo) return;
+    if (!confirm('Excluir a folha "' + alvo.nome + '" e tudo o que está nela?')) return;
+    gravarJ(IDX, ix.filter(i => i.id !== id));
+    try { localStorage.removeItem(FK(id)); } catch (e) {}
+    if (id === F.id) { if (App) App.fechar(); else window.close(); return; }
+    if (App) App.fecharFolha(id);
+    renderMenu();
+  }
+
+  // ---------- eventos ----------
+  app.addEventListener('click', async (e) => {
+    const tg = e.target;
+    const ab = tg.closest('[data-abrir]');
+    if (ab) { const id = ab.dataset.abrir; if (id === F.id) { $('menu').hidden = true; return; } if (App) await App.abrirFolha(id); else window.open(location.pathname + '?folha=' + id, '_blank', 'width=420,height=680'); $('menu').hidden = true; return; }
+    const ex = tg.closest('[data-excluir]'); if (ex) { excluirFolha(ex.dataset.excluir); return; }
+    const nv = tg.closest('[data-nova]'); if (nv) { criarEAbrir(nv.dataset.nova); return; }
+    if (tg.closest('[data-sair]')) { App && App.sair(); return; }
+    if (tg.id === 'btnMenu') { const m = $('menu'); m.hidden = !m.hidden; if (!m.hidden) renderMenu(); return; }
+    if (!tg.closest('#menu')) $('menu').hidden = true;
+    const f = tg.closest('[data-filtro]');
+    if (f) { state.filtro = f.dataset.filtro; editId = null; salvar(); render(); return; }
+    const chip = tg.closest('[data-cat]');
     if (chip) { catSel = (catSel === chip.dataset.cat) ? null : chip.dataset.cat; renderCats(); return; }
-    const aba = e.target.closest('[data-dia]');
-    if (aba) { state.dia = parseInt(aba.dataset.dia, 10); salvar(); render(); return; }
-    if (e.target.id === 'btnAdd') { adicionar(); return; }
-    if (e.target.id === 'btnLimpar') { state.tarefas = state.tarefas.filter(t => !(t.dia === state.dia && t.feito)); salvar(); render(); return; }
-    if (e.target.id === 'btnFixar') { fixar(); return; }
-    const btn = e.target.closest('[data-act]'); if (!btn || btn.type === 'checkbox') return;
-    const card = btn.closest('.tarefa'); const t = state.tarefas.find(x => x.id === +card.dataset.id); if (!t) return;
-    const act = btn.dataset.act;
-    if (act === 'iniciar') {
-      t.rodando = true; t.desde = Date.now();
-      if ('Notification' in window && Notification.permission === 'default') { try { Notification.requestPermission(); } catch (e) {} }
-    } else if (act === 'pausar') { t.rest = restante(t); t.rodando = false; }
-    else if (act === 'mais') { t.dur += 900; t.rest += 900; if (restante(t) > 0) t.alertado = false; }
-    else if (act === 'zerar') { t.rest = t.dur; t.rodando = false; t.alertado = false; }
-    else if (act === 'excluir') { state.tarefas = state.tarefas.filter(x => x !== t); }
-    salvar(); render();
+    const echip = tg.closest('[data-ecat]');
+    if (echip) { editCat = (editCat === echip.dataset.ecat) ? null : echip.dataset.ecat; echip.parentNode.querySelectorAll('[data-ecat]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ecat === editCat))); return; }
+    const cf = tg.closest('[data-cfg]');
+    if (cf) { const [k, v] = cf.dataset.cfg.split(':'); state.cfg[k] = v; salvar(); aplicarCfg(); return; }
+    if (tg.id === 'btnConfig') { $('painel').hidden = !$('painel').hidden; tg.classList.toggle('ativo', !$('painel').hidden); return; }
+    if (tg.id === 'btnAdd') { adicionar(); return; }
+    if (tg.id === 'btnLimpar') { state.tarefas = state.tarefas.filter(t => !t.feito); salvar(); render(); return; }
+    if (tg.id === 'btnFixar' && App) { const v = await App.toggleTop(); $('btnFixar').classList.toggle('ativo', v); return; }
+    const btn = tg.closest('[data-act]'); if (!btn || btn.type === 'checkbox') return;
+    const card = btn.closest('.tarefa'); if (!card) return;
+    const id = +card.dataset.id, act = btn.dataset.act;
+    if (act === 'editar') abrirEdicao(id);
+    else if (act === 'salvar') salvarEdicao(card);
+    else if (act === 'cancelar') { editId = null; renderLista(); }
+    else if (act === 'excluir') { state.tarefas = state.tarefas.filter(x => x.id !== id); if (editId === id) editId = null; salvar(); render(); }
   });
   app.addEventListener('change', (e) => {
-    if (e.target.dataset.act !== 'feito') return;
-    const t = state.tarefas.find(x => x.id === +e.target.closest('.tarefa').dataset.id); if (!t) return;
-    t.feito = e.target.checked;
-    if (t.feito && t.rodando) { t.rest = restante(t); t.rodando = false; }
-    salvar(); render();
+    if (e.target.dataset.act === 'feito') {
+      const t = state.tarefas.find(x => x.id === +e.target.closest('.tarefa').dataset.id); if (!t) return;
+      t.feito = e.target.checked; salvar(); render();
+    } else if (e.target.id === 'rNome') { syncIndice(); }
   });
-  app.addEventListener('dblclick', (e) => {
-    const n = e.target.closest('.nome'); if (!n || n.closest('.feito')) return;
-    n.contentEditable = 'true'; n.focus();
-    const r = document.createRange(); r.selectNodeContents(n); r.collapse(false);
-    const s = n.ownerDocument.defaultView.getSelection(); s.removeAllRanges(); s.addRange(r);
+  app.addEventListener('input', (e) => {
+    if (e.target.id === 'rEsc') setEscala(+e.target.value);
+    else if (e.target.id === 'rNome') { F.nome = e.target.value.trim() || TIPOS[tipo].nome; salvar(); renderTopo(); }
   });
-  function fecharEdicao(n, salvarTxt) {
-    const t = state.tarefas.find(x => x.id === +n.closest('.tarefa').dataset.id);
-    const txt = n.textContent.trim();
-    if (t && salvarTxt && txt) t.titulo = txt;
-    salvar(); renderLista();
-  }
-  app.addEventListener('focusout', (e) => { if (e.target.matches && e.target.matches('.nome[contenteditable="true"]')) fecharEdicao(e.target, true); });
+  app.addEventListener('dblclick', (e) => { const n = e.target.closest('.nome'); if (n) abrirEdicao(+n.closest('.tarefa').dataset.id); });
   app.addEventListener('keydown', (e) => {
-    if (e.target.matches && e.target.matches('.nome[contenteditable="true"]')) {
-      if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); }
-      if (e.key === 'Escape') { e.target.textContent = state.tarefas.find(x => x.id === +e.target.closest('.tarefa').dataset.id).titulo; e.target.blur(); }
+    const t = e.target;
+    if (t.classList && t.classList.contains('e-titulo')) {
+      if (e.key === 'Enter') salvarEdicao(t.closest('.tarefa'));
+      if (e.key === 'Escape') { editId = null; renderLista(); }
       return;
     }
-    if (e.key === 'Enter' && ['fTitulo', 'fDur', 'fHora'].includes(e.target.id)) adicionar();
+    if (e.key === 'Enter' && (t.id === 'fTitulo' || t.id === 'fIni' || t.id === 'fFim' || t.id === 'fHora')) adicionar();
+    if (e.key === 'Escape') $('menu').hidden = true;
   });
+  app.addEventListener('wheel', (e) => { if (e.ctrlKey) { e.preventDefault(); setEscala(state.cfg.escala + (e.deltaY < 0 ? 5 : -5)); } }, { passive: false });
+  document.addEventListener('keydown', (e) => {
+    if (!e.ctrlKey) return;
+    if (e.key === '+' || e.key === '=') { e.preventDefault(); setEscala(state.cfg.escala + 5); }
+    else if (e.key === '-') { e.preventDefault(); setEscala(state.cfg.escala - 5); }
+    else if (e.key === '0') { e.preventDefault(); setEscala(100); }
+  });
+  window.addEventListener('storage', (e) => { if (e.key === IDX && !$('menu').hidden) renderMenu(); });
 
-  // ---------- fixar na tela ----------
-  const App = window.postit || null;
+  // ---------- recados (texto livre) ----------
+  const rec = $('recado');
+  rec.value = F.texto || '';
+  let tmRec = null;
+  rec.addEventListener('input', () => { F.texto = rec.value; clearTimeout(tmRec); tmRec = setTimeout(salvar, 300); });
+  window.addEventListener('beforeunload', () => { if (tipo === 'recados') { F.texto = rec.value; salvar(); } });
+
+  // ---------- janela / atualização ----------
   if (App) {
-    document.body.classList.add('app', 'pip');
+    document.body.classList.add('app');
     App.getTop().then(v => $('btnFixar').classList.toggle('ativo', v));
     App.getAuto().then(v => { $('chkAuto').checked = v; });
     App.versao().then(v => { $('ver').textContent = 'Versão ' + v; });
@@ -431,28 +642,14 @@ body.app .ver { display: block; }
     $('btnFechar').onclick = () => App.fechar();
     $('chkAuto').onchange = (e) => App.setAuto(e.target.checked);
   }
-  async function fixar() {
-    if (App) { const v = await App.toggleTop(); $('btnFixar').classList.toggle('ativo', v); return; }
-    if (pipWin) { pipWin.close(); return; }
-    if (!('documentPictureInPicture' in window)) {
-      $('aviso').textContent = 'Use o aplicativo instalado para fixar na tela (ou Edge/Chrome 116+).';
-      return;
-    }
-    try { pipWin = await window.documentPictureInPicture.requestWindow({ width: 400, height: 600 }); }
-    catch (e) { $('aviso').textContent = 'Não foi possível abrir a janela flutuante.'; return; }
-    pipWin.document.documentElement.lang = 'pt-BR';
-    document.querySelectorAll('style').forEach(s => pipWin.document.head.appendChild(s.cloneNode(true)));
-    pipWin.document.body.classList.add('pip');
-    pipWin.document.body.appendChild(app);
-    $('fixadoMsg').hidden = false;
-    $('btnFixar').classList.add('ativo');
-    pipWin.addEventListener('pagehide', () => {
-      $('host').appendChild(app); $('fixadoMsg').hidden = true;
-      $('btnFixar').classList.remove('ativo'); pipWin = null;
-    });
-  }
 
-  render();
+  // ---------- início ----------
+  $('rNome').value = F.nome;
+  $('fTitulo').placeholder = tipo === 'lembretes' ? '＋ Escreva um lembrete…' : '＋ Escreva uma tarefa…';
+  $('lblIni').textContent = tipo === 'lembretes' ? 'Data' : 'Início';
+  $('aviso').textContent = tipo === 'recados' ? 'Tudo o que você escreve aqui é salvo automaticamente.' : tipo === 'lembretes' ? 'Dica: lembretes com hora avisam no Windows enquanto esta folha estiver aberta (pode ficar minimizada).' : 'Dica: clique em ✎ (ou duas vezes no texto) para editar uma tarefa.';
+  $('fIni').value = hojeISO(); $('fFim').value = hojeISO();
+  aplicarCfg(); salvar(); render(); checarLembretes();
 })();
 </script>
 </body>
