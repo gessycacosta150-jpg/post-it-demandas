@@ -193,7 +193,7 @@ body.app .ver { display: block; }
     <p class="aviso" id="aviso">Dica: clique duas vezes numa tarefa para editar o texto.</p>
     <div class="upd" id="upd"><span id="updTxt"></span><button class="btn btn--forte" id="btnUpd">Reiniciar e atualizar</button></div>
     <label class="rodape-app"><input type="checkbox" id="chkAuto"> Abrir automaticamente ao ligar o computador</label>
-    <div class="ver" id="ver"></div>
+    <div class="ver"><span id="ver"></span> · <button class="limpar" id="btnChecar">Verificar atualizações</button> <span id="chkMsg"></span></div>
   </div>
 </div>
 <div class="fixado-msg" id="fixadoMsg" hidden>📌 O post-it está na janela flutuante.<br>Feche-a para trazê-lo de volta aqui.</div>
@@ -419,7 +419,13 @@ body.app .ver { display: block; }
     App.getTop().then(v => $('btnFixar').classList.toggle('ativo', v));
     App.getAuto().then(v => { $('chkAuto').checked = v; });
     App.versao().then(v => { $('ver').textContent = 'Versão ' + v; });
-    App.onAtualizacao(v => { $('updTxt').textContent = 'Nova versão ' + v + ' pronta.'; $('upd').classList.add('on'); });
+    App.onDisponivel(v => { $('updTxt').textContent = 'Nova versão ' + v + ' encontrada. Baixando...'; $('btnUpd').hidden = true; $('upd').classList.add('on'); });
+    App.onAtualizacao(v => { $('updTxt').textContent = 'Nova versão ' + v + ' pronta.'; $('btnUpd').hidden = false; $('upd').classList.add('on'); });
+    $('btnChecar').onclick = async () => {
+      $('chkMsg').textContent = 'verificando...';
+      const r = await App.checar();
+      $('chkMsg').textContent = r === 'atual' ? 'Você está na versão mais recente.' : r === 'nova' ? 'Nova versão encontrada!' : r === 'erro' ? 'Não foi possível verificar agora.' : '(só no programa instalado)';
+    };
     $('btnUpd').onclick = () => App.instalarAtualizacao();
     $('btnMin').onclick = () => App.minimizar();
     $('btnFechar').onclick = () => App.fechar();

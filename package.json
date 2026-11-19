@@ -1,7 +1,7 @@
 {
   "name": "post-it-demandas",
   "productName": "Post-it Demandas",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Post-it de demandas e checklist semanal para a área de trabalho",
   "main": "main.js",
   "author": "Gessyca Costa",

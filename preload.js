@@ -8,5 +8,7 @@ contextBridge.exposeInMainWorld('postit', {
   setAuto:   (v) => ipcRenderer.send('auto:set', v),
   versao:    () => ipcRenderer.invoke('app:versao'),
   onAtualizacao: (cb) => ipcRenderer.on('update:pronta', (_e, v) => cb(v)),
+  onDisponivel: (cb) => ipcRenderer.on('update:disponivel', (_e, v) => cb(v)),
+  checar: () => ipcRenderer.invoke('update:checar'),
   instalarAtualizacao: () => ipcRenderer.send('update:instalar')
 });

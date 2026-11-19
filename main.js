@@ -1,9 +1,23 @@
-const { app, BrowserWindow, ipcMain, screen, nativeTheme } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, nativeTheme, Notification } = require('electron');
 const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
 
 if (!app.requestSingleInstanceLock()) { app.quit(); }
+app.setAppUserModelId('br.postit.demandas');
+
+// Aviso do Windows (canto da tela) + pisca o ícone na barra de tarefas
+function avisar(titulo, corpo, aoClicar) {
+  try {
+    if (Notification.isSupported()) {
+      const n = new Notification({ title: titulo, body: corpo });
+      if (aoClicar) n.on('click', aoClicar);
+      n.show();
+    }
+  } catch (e) {}
+  if (win && !win.isDestroyed()) win.flashFrame(true);
+}
+let versaoAvisada = null;
 
 let win = null;
 const arqEstado = () => path.join(app.getPath('userData'), 'janela.json');
@@ -44,11 +58,25 @@ function iniciarAtualizacao() {
   if (!app.isPackaged) return;            // só no programa instalado
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true; // se ignorar o aviso, atualiza ao fechar
-  autoUpdater.on('update-downloaded', (info) => { if (win) win.webContents.send('update:pronta', info.version); });
+  autoUpdater.on('update-available', (info) => {
+    if (win) win.webContents.send('update:disponivel', info.version);
+    if (versaoAvisada !== info.version) {
+      versaoAvisada = info.version;
+      avisar('Atualização disponível', 'A versão ' + info.version + ' do Post-it está sendo baixada.');
+    }
+  });
+  autoUpdater.on('update-downloaded', (info) => {
+    if (win) win.webContents.send('update:pronta', info.version);
+    avisar('Atualização pronta', 'Versão ' + info.version + ' baixada. Clique aqui para reiniciar e atualizar.', () => autoUpdater.quitAndInstall());
+  });
   autoUpdater.on('error', () => {});       // sem internet/GitHub fora do ar: segue normal
   const checar = () => autoUpdater.checkForUpdates().catch(() => {});
   checar();
-  setInterval(checar, 4 * 60 * 60 * 1000); // e a cada 4 horas
+  setInterval(checar, 60 * 60 * 1000);     // e a cada 1 hora
+  let ultima = Date.now();
+  app.on('browser-window-focus', () => {   // e ao voltar para o post-it (no máximo a cada 15 min)
+    if (Date.now() - ultima > 15 * 60 * 1000) { ultima = Date.now(); checar(); }
+  });
 }
 
 app.whenReady().then(() => { criar(); iniciarAtualizacao(); });
@@ -62,3 +90,10 @@ ipcMain.handle('auto:get', () => app.getLoginItemSettings().openAtLogin);
 ipcMain.on('auto:set', (_e, v) => app.setLoginItemSettings({ openAtLogin: !!v }));
 ipcMain.handle('app:versao', () => app.getVersion());
 ipcMain.on('update:instalar', () => autoUpdater.quitAndInstall());
+ipcMain.handle('update:checar', async () => {
+  if (!app.isPackaged) return 'dev';
+  try {
+    const r = await autoUpdater.checkForUpdates();
+    return r && r.updateInfo && r.updateInfo.version !== app.getVersion() ? 'nova' : 'atual';
+  } catch (e) { return 'erro'; }
+});
