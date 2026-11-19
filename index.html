@@ -83,7 +83,7 @@ body.app .linha-aj.so-app { display: flex; }
 }
 @media (max-width: 330px) {
   .folha::before { left: .3em; width: 1em; } .folha::after { left: 2.2em; }
-  .topo { padding-left: 2.6em; } .corpo { padding-left: 2.6em; padding-right: .6em; } .ilu { display: none; }
+  .topo { padding-left: 2.6em; } .corpo { padding-left: 2.6em; padding-right: .6em; } .ilu { display: none; } .rodape { padding-left: 3.34em; padding-right: .8em; }
   .linha-add .btn { padding: .3em .6em; }
 }
 
@@ -155,15 +155,19 @@ html[data-papel="noite"] { color-scheme: dark; }
 .limpar { cursor: pointer; background: none; border: 0; color: var(--suave); text-decoration: underline; padding: 0; font-size: .82em; }
 .resumo-linha { display: flex; justify-content: space-between; align-items: center; min-height: 1.5em; margin: 0 0 .2em; font-size: .82em; color: var(--suave); }
 
-.rodape { margin-top: .8em; font-size: .78em; color: var(--suave); }
-.aviso { margin: .3em 0 0; }
-.rodape-app { display: none; align-items: center; gap: .4em; margin-top: .4em; }
+.rodape { flex: none; position: relative; z-index: 3; margin-top: 1.4em; padding: .7em 1.3em .75em 4.49em; font-size: .78em; color: var(--suave);
+  border-top: 1px dashed var(--margem); background: var(--papel); }
+.rodape-linha { display: flex; align-items: center; justify-content: space-between; gap: .6em; flex-wrap: wrap; }
+.aviso { margin: .1em 0 .5em; font-size: .8em; color: var(--suave); }
+.aviso:empty { display: none; }
+.lista { margin-bottom: 1.6em; }
+.rodape-app { display: none; align-items: center; gap: .4em; margin-top: .3em; }
 body.app .rodape-app { display: flex; }
-.ver { display: none; margin-top: .3em; }
+.ver { display: none; }
 body.app .ver { display: block; }
-.base-deco { display: flex; gap: .6em; justify-content: flex-end; margin-top: .6em; color: var(--destaque); opacity: .55; }
+.base-deco { display: flex; gap: .5em; justify-content: flex-end; margin-left: auto; color: var(--destaque); opacity: .55; }
 .base-deco svg { width: 1.3em; height: 1.3em; }
-.upd { display: none; align-items: center; justify-content: space-between; gap: .5em; margin-top: .5em; padding: .5em .7em; background: color-mix(in srgb, var(--destaque) 14%, var(--papel)); border-radius: var(--r); border: 1px solid var(--destaque); }
+.upd { display: none; align-items: center; justify-content: space-between; gap: .5em; margin: 0 0 .5em; padding: .5em .7em; background: color-mix(in srgb, var(--destaque) 14%, var(--papel)); border-radius: var(--r); border: 1px solid var(--destaque); }
 .upd.on { display: flex; }
 .fixado-msg { max-width: 34em; margin: 1em auto; padding: 1.2em; text-align: center; color: var(--suave); }
 .fixado-msg[hidden] { display: none; }
@@ -257,6 +261,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
         <div class="linha-aj"><span>Cantos</span><div class="opts" id="optCantos"></div></div>
         <div class="linha-aj"><span>Letra</span><div class="opts" id="optFonte"></div></div>
         <div class="linha-aj"><span></span><button class="btn suave" id="btnTodas">Aplicar este visual a todas as folhas</button><span id="msgTodas" style="width:auto"></span></div>
+        <div class="prog-txt" id="dicaTipo"></div>
         <div class="prog-txt">Dica: Ctrl + roda do mouse (ou Ctrl + / Ctrl −) muda o tamanho. Arraste as bordas da janela para ajustar a largura e a altura.</div>
       </div>
 
@@ -276,21 +281,25 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
         </div>
       </div>
 
+      <p class="aviso" id="aviso"></p>
       <div class="resumo-linha"><span id="resumo"></span><button class="limpar" id="btnLimpar" hidden>Limpar concluídas</button></div>
       <div class="lista" id="lista"></div>
 
       <textarea class="recado" id="recado" placeholder="Escreva seu recado aqui…" spellcheck="true"></textarea>
 
-      <div class="rodape">
-        <p class="aviso" id="aviso">Dica: clique em ✎ (ou duas vezes no texto) para editar uma tarefa.</p>
-        <div class="upd" id="upd"><span id="updTxt"></span><button class="btn" id="btnUpd">Reiniciar e atualizar</button></div>
-        <label class="rodape-app"><input type="checkbox" id="chkAuto"> Abrir automaticamente ao ligar o computador</label>
+    </div>
+
+    <div class="rodape">
+      <div class="upd" id="upd"><span id="updTxt"></span><button class="btn" id="btnUpd">Reiniciar e atualizar</button></div>
+      <div class="rodape-linha">
         <div class="ver"><span id="ver"></span> · <button class="limpar" id="btnChecar">Verificar atualizações</button> <span id="chkMsg"></span></div>
         <div class="base-deco" id="baseDeco"><svg viewBox="0 0 20 20"><use id="mini1" href="#mini-folha"/></svg><svg viewBox="0 0 20 20" style="transform:rotate(-20deg)"><use id="mini2" href="#mini-folha"/></svg><svg viewBox="0 0 20 20" style="transform:rotate(15deg)"><use id="mini3" href="#mini-folha"/></svg></div>
       </div>
+      <label class="rodape-app"><input type="checkbox" id="chkAuto"> Abrir ao ligar o computador</label>
     </div>
   </div>
 </div>
+<div class="fixado-msg"
 <div class="fixado-msg" id="fixadoMsg" hidden>📌 O post-it está na janela flutuante.<br>Feche-a para trazê-lo de volta aqui.</div>
 
 <script>
@@ -686,7 +695,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
   $('rNome').value = F.nome;
   $('fTitulo').placeholder = tipo === 'lembretes' ? '＋ Escreva um lembrete…' : '＋ Escreva uma tarefa…';
   $('lblIni').textContent = tipo === 'lembretes' ? 'Data' : 'Início';
-  $('aviso').textContent = tipo === 'recados' ? 'Tudo o que você escreve aqui é salvo automaticamente.' : tipo === 'lembretes' ? 'Dica: lembretes com hora avisam no Windows enquanto esta folha estiver aberta (pode ficar minimizada).' : 'Dica: clique em ✎ (ou duas vezes no texto) para editar uma tarefa.';
+  $('dicaTipo').textContent = tipo === 'recados' ? 'Tudo o que você escreve é salvo automaticamente.' : tipo === 'lembretes' ? 'Lembretes com hora avisam no Windows enquanto esta folha estiver aberta (pode ficar minimizada).' : 'Clique em ✎ (ou duas vezes no texto) para editar uma tarefa.';
   $('fIni').value = hojeISO(); $('fFim').value = hojeISO();
   aplicarCfg(); salvar(); render(); checarLembretes();
 })();
