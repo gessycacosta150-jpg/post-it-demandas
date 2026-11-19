@@ -9,7 +9,25 @@ app.setPath('userData', path.join(app.getPath('appData'), 'Post-it Demandas'));
 if (!app.requestSingleInstanceLock()) { app.quit(); }
 app.setAppUserModelId('br.postit.demandas');
 
+// Posicionar a janela no fundo da pilha (só na área de trabalho), sem cobrir os aplicativos.
+// Usa a API do Windows; se não estiver disponível, a janela simplesmente se comporta como normal.
+let SetWindowPos = null;
+try {
+  const koffi = require('koffi');
+  const user32 = koffi.load('user32.dll');
+  SetWindowPos = user32.func('bool __stdcall SetWindowPos(intptr_t hWnd, intptr_t hWndInsertAfter, int X, int Y, int cx, int cy, uint32_t uFlags)');
+} catch (e) { SetWindowPos = null; }
+function paraFundo(win) {
+  if (!SetWindowPos || !win || win.isDestroyed()) return;
+  try {
+    const b = win.getNativeWindowHandle();
+    const hwnd = b.length >= 8 ? Number(b.readBigInt64LE(0)) : b.readInt32LE(0);
+    SetWindowPos(hwnd, 1 /* HWND_BOTTOM */, 0, 0, 0, 0, 0x0001 | 0x0002 | 0x0010 /* NOSIZE | NOMOVE | NOACTIVATE */);
+  } catch (e) {}
+}
+
 const janelas = new Map();     // id da folha -> janela
+const modoDe = (id) => (estado.folhas[id] && estado.folhas[id].modo) || 'fundo';   // fundo | normal | cima
 let encerrando = false;
 let versaoAvisada = null;
 
@@ -26,7 +44,7 @@ const estado = lerEstado();
 function gravar() { try { fs.writeFileSync(arqEstado(), JSON.stringify(estado)); } catch (e) {} }
 function guardar(id, win) {
   if (!win || win.isDestroyed()) return;
-  estado.folhas[id] = { ...win.getBounds(), top: win.isAlwaysOnTop() };
+  estado.folhas[id] = { ...win.getBounds(), modo: modoDe(id) };
   gravar();
 }
 
@@ -69,7 +87,7 @@ function abrirFolha(id, referencia) {
     width: w, height: h, x, y,
     minWidth: 240, minHeight: 220,
     frame: false,
-    alwaysOnTop: e.top !== false,
+    alwaysOnTop: modoDe(id) === 'cima',
     autoHideMenuBar: true,
     title: 'Gege Post-it',
     backgroundColor: nativeTheme.shouldUseDarkColors ? '#2C303C' : '#FFFDF6',
@@ -78,6 +96,8 @@ function abrirFolha(id, referencia) {
   win.setMenu(null);
   win.loadFile(path.join(__dirname, 'index.html'), { query: { folha: id } });
   janelas.set(id, win);
+  win.once('ready-to-show', () => { if (modoDe(id) === 'fundo') paraFundo(win); });
+  win.on('blur', () => { if (modoDe(id) === 'fundo') setTimeout(() => paraFundo(win), 60); });
   if (!estado.abertas.includes(id)) estado.abertas.push(id);
   gravar();
 
@@ -136,8 +156,27 @@ app.whenReady().then(() => {
 
 // ---------- comunicação com as folhas ----------
 const janelaDe = (e) => BrowserWindow.fromWebContents(e.sender);
-ipcMain.handle('top:get', (e) => { const w = janelaDe(e); return w ? w.isAlwaysOnTop() : true; });
-ipcMain.handle('top:toggle', (e) => { const w = janelaDe(e); if (!w) return true; const v = !w.isAlwaysOnTop(); w.setAlwaysOnTop(v); const id = idDe(e.sender); if (id) guardar(id, w); return v; });
+ipcMain.handle('modo:get', (e) => { const id = idDe(e.sender); return id ? modoDe(id) : 'normal'; });
+ipcMain.handle('modo:set', (e, m) => {
+  const id = idDe(e.sender), w = janelaDe(e); if (!id || !w) return 'normal';
+  if (!['fundo', 'normal', 'cima'].includes(m)) m = 'fundo';
+  estado.folhas[id] = { ...(estado.folhas[id] || {}), modo: m };
+  w.setAlwaysOnTop(m === 'cima');
+  if (m === 'fundo') paraFundo(w);
+  guardar(id, w);
+  return m;
+});
+// Encaixar na lateral ou no rodapé da tela (área útil: não invade a barra de tarefas)
+ipcMain.on('janela:encaixar', (e, pos) => {
+  const w = janelaDe(e), id = idDe(e.sender); if (!w || !id) return;
+  const b = w.getBounds();
+  const wa = screen.getDisplayMatching(b).workArea;
+  const larg = Math.min(Math.max(b.width, 260), 420);   // lateral: largura de post-it (não a tela toda)
+  if (pos === 'direita')  w.setBounds({ x: wa.x + wa.width - larg, y: wa.y, width: larg, height: wa.height });
+  if (pos === 'esquerda') w.setBounds({ x: wa.x, y: wa.y, width: larg, height: wa.height });
+  if (pos === 'rodape')   { const h = Math.min(Math.max(b.height, 220), 300); w.setBounds({ x: wa.x, y: wa.y + wa.height - h, width: wa.width, height: h }); }
+  guardar(id, w);
+});
 ipcMain.on('win:min', (e) => { const w = janelaDe(e); if (w) w.minimize(); });
 ipcMain.on('win:close', (e) => { const w = janelaDe(e); if (w) w.close(); });
 ipcMain.handle('folha:abrir', (e, id) => { abrirFolha(String(id), janelaDe(e)); return true; });

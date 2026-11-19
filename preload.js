@@ -1,7 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('postit', {
-  toggleTop: () => ipcRenderer.invoke('top:toggle'),
-  getTop:    () => ipcRenderer.invoke('top:get'),
+  getModo:   () => ipcRenderer.invoke('modo:get'),
+  setModo:   (m) => ipcRenderer.invoke('modo:set', m),
+  encaixar:  (pos) => ipcRenderer.send('janela:encaixar', pos),
   minimizar: () => ipcRenderer.send('win:min'),
   fechar:    () => ipcRenderer.send('win:close'),
   getAuto:   () => ipcRenderer.invoke('auto:get'),

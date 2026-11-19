@@ -73,6 +73,7 @@ html[data-decor="nenhum"] .ilu, html[data-decor="nenhum"] .base-deco { display: 
 .ctrl, .ctrl *, input, select, button, .corpo, .abas, .painel { -webkit-app-region: no-drag; }
 .so-app { display: none; }
 body.app .so-app { display: inline-block; }
+body.app .linha-aj.so-app { display: flex; }
 
 .corpo {
   position: relative; z-index: 3; flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin;
@@ -237,7 +238,7 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
       <div class="ctrl">
         <button class="ico" id="btnMenu" title="Minhas folhas: abrir, criar e excluir">☰</button>
         <button class="ico" id="btnConfig" title="Ajustes: tamanho, cores e temas">⚙</button>
-        <button class="ico so-app" id="btnFixar" title="Manter sempre por cima das outras janelas">📌</button>
+        <button class="ico so-app" id="btnFixar" title="Ficar por cima dos aplicativos (desligado = só na área de trabalho)">📌</button>
         <button class="ico so-app" id="btnMin" title="Minimizar">–</button>
         <button class="ico so-app" id="btnFechar" title="Fechar">✕</button>
       </div>
@@ -247,6 +248,8 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
 
     <div class="corpo" id="corpo">
       <div class="painel" id="painel" hidden>
+        <div class="linha-aj so-app"><span>Na tela</span><div class="opts" id="optModo"></div></div>
+        <div class="linha-aj so-app"><span>Encaixar</span><div class="opts" id="optEncaixe"></div></div>
         <div class="linha-aj"><span>Nome</span><input type="text" id="rNome" maxlength="28" placeholder="Nome da folha"></div>
         <div class="linha-aj"><span>Tamanho</span><input type="range" id="rEsc" min="70" max="160" step="5"><b id="vEsc"></b></div>
         <div class="linha-aj"><span>Papel</span><div class="opts" id="swPapel"></div></div>
@@ -598,7 +601,6 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
     if (tg.id === 'btnConfig') { $('painel').hidden = !$('painel').hidden; tg.classList.toggle('ativo', !$('painel').hidden); return; }
     if (tg.id === 'btnAdd') { adicionar(); return; }
     if (tg.id === 'btnLimpar') { state.tarefas = state.tarefas.filter(t => !t.feito); salvar(); render(); return; }
-    if (tg.id === 'btnFixar' && App) { const v = await App.toggleTop(); $('btnFixar').classList.toggle('ativo', v); return; }
     const btn = tg.closest('[data-act]'); if (!btn || btn.type === 'checkbox') return;
     const card = btn.closest('.tarefa'); if (!card) return;
     const id = +card.dataset.id, act = btn.dataset.act;
@@ -652,7 +654,19 @@ body[data-tipo="recados"] .corpo { display: flex; flex-direction: column; paddin
   // ---------- janela / atualização ----------
   if (App) {
     document.body.classList.add('app');
-    App.getTop().then(v => $('btnFixar').classList.toggle('ativo', v));
+    const MODOS = [['fundo', 'Só na área de trabalho'], ['normal', 'Normal'], ['cima', 'Sempre por cima']];
+    const ENCAIXES = [['esquerda', '◀ Lateral esq.'], ['direita', 'Lateral dir. ▶'], ['rodape', '▼ Rodapé']];
+    const mostrarModo = (m) => {
+      $('btnFixar').classList.toggle('ativo', m === 'cima');
+      $('optModo').innerHTML = MODOS.map(([k, n]) => `<button class="opt" data-modo="${k}" aria-pressed="${m === k}">${n}</button>`).join('');
+    };
+    App.getModo().then(mostrarModo);
+    $('optEncaixe').innerHTML = ENCAIXES.map(([k, n]) => `<button class="opt" data-encaixe="${k}">${n}</button>`).join('');
+    app.addEventListener('click', async (e) => {
+      const mo = e.target.closest('[data-modo]'); if (mo) { mostrarModo(await App.setModo(mo.dataset.modo)); return; }
+      const en = e.target.closest('[data-encaixe]'); if (en) { App.encaixar(en.dataset.encaixe); return; }
+      if (e.target.id === 'btnFixar') { const atual = await App.getModo(); mostrarModo(await App.setModo(atual === 'cima' ? 'fundo' : 'cima')); }
+    });
     App.getAuto().then(v => { $('chkAuto').checked = v; });
     App.versao().then(v => { $('ver').textContent = 'Versão ' + v; });
     App.onDisponivel(v => { $('updTxt').textContent = 'Nova versão ' + v + ' encontrada. Baixando...'; $('btnUpd').hidden = true; $('upd').classList.add('on'); });
